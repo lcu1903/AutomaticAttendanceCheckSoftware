@@ -1,5 +1,6 @@
 
 using Core.Interfaces;
+using Core.Notifications;
 using DataAccess.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -29,7 +30,7 @@ public static class NativeInjector
         //Configuration - General Setting Service
 
         // Systems.Domain - Events
-        // services.AddScoped<INotificationHandler<DomainNotification>, DomainNotificationHandler>();
+        services.AddScoped<INotificationHandler<DomainNotification>, DomainNotificationHandler>();
 
         // Systems.Domain - 3rd parties
         // services.AddScoped<IHttpService, HttpService>();

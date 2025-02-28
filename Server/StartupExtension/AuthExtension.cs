@@ -53,6 +53,21 @@ public static class AuthExtension
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };
+        services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddCookie("external")
+            .AddJwtBearer(configureOptions =>
+            {
+                configureOptions.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
+                configureOptions.TokenValidationParameters = tokenValidationParameters;
+                configureOptions.RequireHttpsMetadata = false;
+                configureOptions.SaveToken = true;
+            })
+        
+        ;
         return services;
     }
 
@@ -60,7 +75,6 @@ public static class AuthExtension
     {
         app.UseAuthentication();
         app.UseAuthorization();
-
         app.UseSession();
         return app;
     }
