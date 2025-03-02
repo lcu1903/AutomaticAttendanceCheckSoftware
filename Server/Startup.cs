@@ -58,7 +58,7 @@ public class Startup
         services.AddDistributedMemoryCache();
 
         // Adding MediatR for Systems.Domain Events and Notifications
-        
+         services.AddMediatR(d => d.RegisterServicesFromAssemblyContaining(typeof(Startup)));
 
         services.AddCustomizedHash(Configuration);
 

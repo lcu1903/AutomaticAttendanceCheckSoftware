@@ -1,6 +1,6 @@
 using System.Security.Claims;
-using Core.Models;
 using DataAccess.Models;
+using Infrastructure.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

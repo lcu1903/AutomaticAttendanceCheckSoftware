@@ -1,4 +1,5 @@
-using Core.Services.Hash;
+
+using Infrastructure.Services.Hash;
 
 namespace Controllers.StartupExtensions;
 

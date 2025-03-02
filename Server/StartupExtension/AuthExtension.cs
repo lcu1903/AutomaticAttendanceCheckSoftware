@@ -1,7 +1,7 @@
 using System.Text;
-using Core.Authorization;
 using DataAccess.Contexts;
 using DataAccess.Models;
+using Infrastructure.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
