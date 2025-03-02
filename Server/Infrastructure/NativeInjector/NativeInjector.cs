@@ -1,7 +1,11 @@
 
+using Core.Bus;
 using Core.Interfaces;
 using Core.Notifications;
 using DataAccess.Models;
+using Infrastructure.Authorization;
+using Infrastructure.Services.Job;
+using Infrastructure.UoW;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,17 +20,17 @@ public static class NativeInjector
         // services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
         // Systems.Domain Bus (Mediator)
-        // services.AddScoped<IMediatorHandler, InMemoryBus>();
+        services.AddScoped<IMediatorHandler, InMemoryBus>();
 
         // Exception Middleware
 
         // ASP.NET Authorization Polices
-        // services.AddSingleton<IAuthorizationHandler, ClaimsRequirementHandler>();
+        services.AddSingleton<IAuthorizationHandler, ClaimsRequirementHandler>();
 
         // Minio Service
         // services.AddScoped<IStorageService,StorageService>();
         // services.AddTransient<INotificationService, NotificationService>();
-        // services.AddTransient<IJobService, HangfireService>();
+        services.AddTransient<IJobService, HangfireService>();
         //Configuration - General Setting Service
 
         // Systems.Domain - Events
@@ -36,14 +40,13 @@ public static class NativeInjector
         // services.AddScoped<IHttpService, HttpService>();
         // services.AddTransient<IMailService, SmtpMailService>();
         // services.AddTransient<IEmailTemplateService, EmailTemplateService>();
-        // services.AddTransient<IJobService, HangfireService>();
 
 
         // Master.Application
         // System - Data Access
 
 
-        // services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
         // services.AddScoped<ISMSServices, SMSServices>();
@@ -54,7 +57,7 @@ public static class NativeInjector
         // services.AddTransient<ISmsSender, AuthSmsMessageSender>();
 
         // Infra - Identity
-        // services.AddScoped<IUser, AspNetUser>();
+        services.AddScoped<IUser, AspNetUser>();
         // services.AddSingleton<IJwtFactory, JwtFactory>();
 
         //Infra - Seeding

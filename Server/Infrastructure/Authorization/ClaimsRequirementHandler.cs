@@ -1,7 +1,7 @@
 
 using Microsoft.AspNetCore.Authorization;
 
-namespace Core.Authorization;
+namespace Infrastructure.Authorization;
 
 public class ClaimsRequirementHandler : AuthorizationHandler<ClaimRequirement>
 {

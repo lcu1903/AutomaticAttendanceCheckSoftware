@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Hangfire;
 
-namespace Core.Services.Job;
+namespace Infrastructure.Services.Job;
 
 public class HangfireService : IJobService
 {

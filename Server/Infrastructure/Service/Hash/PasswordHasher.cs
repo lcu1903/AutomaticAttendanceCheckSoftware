@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using Microsoft.Extensions.Options;
 
-namespace Core.Services.Hash;
+namespace Infrastructure.Services.Hash;
 
 public sealed class PasswordHasher : IPasswordHasher
 {

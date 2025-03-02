@@ -1,8 +1,8 @@
 
 using Core.Bus;
 using Core.Filters;
-using Core.Models;
 using Core.Notifications;
+using Infrastructure.Models;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

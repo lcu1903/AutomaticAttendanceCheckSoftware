@@ -1,4 +1,4 @@
-namespace Core.Models;
+namespace Infrastructure.Models;
 
 public abstract class Entity
 {

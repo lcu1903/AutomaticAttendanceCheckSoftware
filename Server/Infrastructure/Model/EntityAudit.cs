@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Core.Models;
+namespace Infrastructure.Models;
 
 public abstract class EntityAudit : Entity
 {

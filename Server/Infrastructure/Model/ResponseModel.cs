@@ -1,5 +1,4 @@
-namespace Core.Models;
-
+namespace Infrastructure.Models;
 public class ResponseModel<T> 
 {
     public bool Success {get; set;}
