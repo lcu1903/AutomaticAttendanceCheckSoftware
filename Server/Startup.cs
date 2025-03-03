@@ -49,16 +49,16 @@ public class Startup
 
         // ----- AutoMapper -----
         services.AddAutoMapperSetup();
-        
+
         // Add session SErvices
         services.AddSession();
-         // Add data protection services
+        // Add data protection services
         services.AddDataProtection();
         // Add distributed cache 
         services.AddDistributedMemoryCache();
 
         // Adding MediatR for Systems.Domain Events and Notifications
-         services.AddMediatR(d => d.RegisterServicesFromAssemblyContaining(typeof(Startup)));
+        services.AddMediatR(d => d.RegisterServicesFromAssemblyContaining(typeof(Startup)));
 
         services.AddCustomizedHash(Configuration);
 
@@ -73,7 +73,7 @@ public class Startup
         services.AddCustomizedMinio(Configuration);
 
         // ----- Hangfire -----
-        // services.AddHangfire(Configuration);
+        services.AddHangfire(Configuration);
 
         // ----- In memory cache -----
         services.AddMemoryCache();
@@ -119,7 +119,7 @@ public class Startup
 
         // ----- SPA -----
         services.AddSpaStaticFiles(Configuration);
-        
+
     }
 
 
@@ -174,7 +174,7 @@ public class Startup
         app.UseCustomizedSwagger(_env);
 
         // ----- Hangfire -----
-        // app.UseHangfireDashboard(Configuration);
+        app.UseHangfireDashboard(Configuration);
 
 
         // Each map its own static files otherwise
