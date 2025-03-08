@@ -162,13 +162,14 @@ public class Startup
         app.UseCustomizedAuth();
 
 
-        // app.UseEndpoints(endpoints =>
-        // {
-        //     endpoints.MapControllers().RequireRateLimiting("token");
-        //     // endpoints.MapRazorPages();
-        //     // ----- Health check -----
-        //     HealthCheckExtension.UseCustomizedHealthCheck(endpoints, _env);
-        // });
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+            // .RequireRateLimiting("token");
+            // // endpoints.MapRazorPages();
+            // // ----- Health check -----
+            // HealthCheckExtension.UseCustomizedHealthCheck(endpoints, _env);
+        });
 
         // ----- Swagger UI -----
         app.UseCustomizedSwagger(_env);

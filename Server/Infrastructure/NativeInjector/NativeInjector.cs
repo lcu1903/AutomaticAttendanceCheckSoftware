@@ -1,4 +1,5 @@
 
+using System.Services;
 using Core.Bus;
 using Core.Interfaces;
 using Core.Notifications;
@@ -58,7 +59,7 @@ public static class NativeInjector
 
         // Infra - Identity
         services.AddScoped<IUser, AspNetUser>();
-        // services.AddSingleton<IJwtFactory, JwtFactory>();
+        services.AddSingleton<IJwtFactory, JwtFactory>();
 
         //Infra - Seeding
         // services.AddTransient<IDatabaseInitializer, DatabaseInitializer>();

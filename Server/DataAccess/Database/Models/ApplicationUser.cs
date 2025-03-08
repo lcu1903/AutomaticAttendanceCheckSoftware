@@ -14,15 +14,15 @@ public class ApplicationUser : IdentityUser
     /// </summary>
     public override string Id { get; set; } = null!;
     [JsonIgnore]
-    public override string? PasswordHash { get; set; } = null!;
-    public override string? UserName { get; set; } = null!;
+    public override string PasswordHash { get; set; } = null!;
+    public override string UserName { get; set; } = null!;
     [MaxLength(200)]
     public string? FullName { get; set; } 
     public string? FirstName { get; set; } 
     public string? LastName { get; set; } 
     
     override public string? PhoneNumber { get; set; }
-    override public string? Email { get; set; }
+    override public string Email { get; set; } = null!;
 
     public DateTime? BirthdayValue { get; set; }
     public bool IsActive { get; set; }
