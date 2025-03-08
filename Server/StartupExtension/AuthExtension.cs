@@ -66,7 +66,7 @@ public static class AuthExtension
                 configureOptions.RequireHttpsMetadata = false;
                 configureOptions.SaveToken = true;
             })
-        
+
         ;
         return services;
     }
