@@ -3,7 +3,7 @@ using Hangfire.Redis.StackExchange;
 using Npgsql;
 using StackExchange.Redis;
 
-namespace Controllers.StartupExtensions
+namespace StartupExtensions
 {
     public static class HangfireExtension
     {

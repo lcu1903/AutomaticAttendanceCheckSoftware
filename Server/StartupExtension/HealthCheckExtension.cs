@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Minio;
 using Minio.AspNetCore.HealthChecks;
 
-namespace Controllers.StartupExtensions;
+namespace StartupExtensions;
 
 public static class HealthCheckExtension
 {

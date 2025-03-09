@@ -1,7 +1,7 @@
 
 using Infrastructure.Services.Hash;
 
-namespace Controllers.StartupExtensions;
+namespace StartupExtensions;
 
 public static class HashExtension
 {

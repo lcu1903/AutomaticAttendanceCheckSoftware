@@ -18,6 +18,7 @@ public class AccountController : ApiController
         _accountService = accountService;
     }
     [HttpPost("login")]
+    [RedisCache(cacheKeyPrefix: "login", invalidatePatterns: "login", cacheEnabled: true)]
     [AllowAnonymous]
     public async Task<IActionResult> LoginAsync([FromBody] LoginReq req)
     {
@@ -45,5 +46,11 @@ public class AccountController : ApiController
             });
         }
         return Response(res);
+    }
+    [HttpGet("profile")]
+    [RedisCache(10,"profile")]
+    public async Task<IActionResult> ProfileAsync()
+    {
+        return Response("Profile");
     }
 }

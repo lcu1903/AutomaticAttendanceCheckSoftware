@@ -1,4 +1,4 @@
-namespace Controllers.StartupExtensions;
+namespace StartupExtensions;
 
 public static class ErrorHandlingExtension
 {

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
-namespace Controllers.StartupExtensions;
+namespace StartupExtensions;
 
 public static class DatabaseExtension
 {

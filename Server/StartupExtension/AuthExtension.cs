@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
 
-namespace Controllers.StartupExtensions;
+namespace StartupExtensions;
 
 public static class AuthExtension
 {
@@ -75,7 +75,7 @@ public static class AuthExtension
     {
         app.UseAuthentication();
         app.UseAuthorization();
-        app.UseSession();
+        // app.UseSession();
         return app;
     }
 }

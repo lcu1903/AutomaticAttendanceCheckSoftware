@@ -1,6 +1,6 @@
 using Minio;
 using Minio.AspNetCore;
-namespace Controllers.StartupExtensions;
+namespace StartupExtensions;
 
 public static class MinioExtension
 {

@@ -1,5 +1,5 @@
 using System.Threading.RateLimiting;
-using Controllers.StartupExtensions;
+using StartupExtensions;
 using Microsoft.AspNetCore.Http.Features;
 using MediatR;
 using Microsoft.AspNetCore.SpaServices.Extensions;
@@ -39,7 +39,7 @@ public class Startup
                     }));
             rateLimiterOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
         });
-        // services.AddRateLimitService(Configuration);
+        // services.AddRateLimitService(Configuration); 
 
         // ----- Database -----
         services.AddCustomizedDatabase(Configuration, _env);
@@ -55,7 +55,7 @@ public class Startup
         // Add data protection services
         services.AddDataProtection();
         // Add distributed cache 
-        services.AddDistributedMemoryCache();
+        // services.AddDistributedMemoryCache();
 
         // Adding MediatR for Systems.Domain Events and Notifications
         services.AddMediatR(d => d.RegisterServicesFromAssemblyContaining(typeof(Startup)));
@@ -76,18 +76,11 @@ public class Startup
         services.AddHangfire(Configuration);
 
         // ----- In memory cache -----
-        services.AddMemoryCache();
-
-        // // ----- Refit -----
-        // services.AddRefitExtension(Configuration, _env);
-
+        services.AddRedisCache(Configuration);
         // // ----- Logging -----
         // services.AddLoggingExtension(Configuration, _env);
         // services.AddOpenTelemetryConfig(Configuration, _env);
 
-        // // ---- Redis cache ----
-        // services.AddCaching(Configuration);
-        // services.AddResponseCaching();
         services.Configure<FormOptions>(x =>
         {
             x.ValueLengthLimit = int.MaxValue;
@@ -164,9 +157,8 @@ public class Startup
 
         app.UseEndpoints(endpoints =>
         {
-            endpoints.MapControllers();
-            // .RequireRateLimiting("token");
-            // // endpoints.MapRazorPages();
+            endpoints.MapControllers()
+            .RequireRateLimiting("token");
             // // ----- Health check -----
             // HealthCheckExtension.UseCustomizedHealthCheck(endpoints, _env);
         });
@@ -177,6 +169,8 @@ public class Startup
         // ----- Hangfire -----
         app.UseHangfireDashboard(Configuration);
 
+        //Redis
+        // app.UseRedisCache(Configuration);
 
         // Each map its own static files otherwise
         // it will only ever serve index.html no matter the filename 
