@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Http.Features;
 using MediatR;
 using Microsoft.AspNetCore.SpaServices.Extensions;
 using CrosCuttingIoC;
+using Hangfire;
+using System.Storage;
 
 
 namespace Controllers;
@@ -71,9 +73,11 @@ public class Startup
 
         // ----- Minio -----
         services.AddCustomizedMinio(Configuration);
-
+    
+     
         // ----- Hangfire -----
         services.AddHangfire(Configuration);
+        
 
         // ----- In memory cache -----
         services.AddRedisCache(Configuration);
@@ -168,6 +172,12 @@ public class Startup
 
         // ----- Hangfire -----
         app.UseHangfireDashboard(Configuration);
+        RecurringJob.AddOrUpdate<IStorageService>(
+         "CleanupUnusedObjects",
+         service => service.CleanupUnusedObjectsAsync(CancellationToken.None),
+         () => Cron.Daily(),
+         new RecurringJobOptions { TimeZone = TimeZoneInfo.Local }); // hoặc Cron theo thời gian bạn mong muốn
+        
 
         //Redis
         // app.UseRedisCache(Configuration);

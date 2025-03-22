@@ -1,3 +1,4 @@
+using System.Storage;
 using Hangfire;
 using Hangfire.Redis.StackExchange;
 using Npgsql;
@@ -52,6 +53,7 @@ namespace StartupExtensions
             {
                 config.SchedulePollingInterval = TimeSpan.FromMilliseconds(500);
             });
+            
 
 
             return services;

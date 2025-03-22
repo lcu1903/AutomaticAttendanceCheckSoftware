@@ -29,6 +29,7 @@ public class StorageController : ApiController
     }
 
     [AllowAnonymous]
+    [RedisCache(cacheKeyPrefix: "image", cacheEnabled: true)]
     [Route("upload")]
     [HttpPost]
     public async Task<IActionResult> Upload([Required] IFormFile file,
@@ -38,6 +39,7 @@ public class StorageController : ApiController
     }
 
     [AllowAnonymous]
+    [RedisCache(expiryInMinutes:5, cacheKeyPrefix: "image", cacheEnabled: true)]
     [HttpGet("{id}")]
     [ResponseCache(VaryByHeader = "User-Agent", Duration = 300)]
     public async Task<IActionResult> Download( [FromRoute] string id,

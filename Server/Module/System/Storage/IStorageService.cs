@@ -10,7 +10,7 @@ public interface IStorageService : IDomainService
     Task<ObjectTypeMinio?> DownloadObjectAsync(string id, CancellationToken cancellation);
     Task RemoveObjectsAsync(string objectName, CancellationToken cancellation);
     Task<string> GetPresignedObjectAsync(string id, CancellationToken cancellation);
-    // Task<MinioBucketQuotaRes> SetBucketQuotaAsync(string bucketName, MinioBucketQuotaReq quotaReq, CancellationToken cancellation);
+    Task CleanupUnusedObjectsAsync(CancellationToken cancellationToken);
 
 
 }
