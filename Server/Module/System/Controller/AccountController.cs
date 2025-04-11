@@ -41,20 +41,28 @@ public class AccountController : ApiController
     public async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenReq req)
     {
         var res = await _accountService.RefreshTokenAsync(req);
-        if(res is null)
+           if(res is null)
         {
-            return StatusCode(498, new
+            return StatusCode(498, new ResponseModel<LoginRes>
             {
-                success = false,
-                errors = "Refresh failed"
+                Data = null,
+                Errors = new List<ErrorMessage>(){
+                    new ErrorMessage{
+                        Key = "error.refreshTokenExpired",
+                        Description = "message.pleaseLoginAgain",
+                    }
+                },
+                Success = false,
             });
         }
         return Response(res);
     }
-    [HttpGet("profile")]
-    [RedisCache(10,"profile")]
-    public async Task<IActionResult> ProfileAsync()
+    [HttpPost("change-password")]
+    [ProducesResponseType(typeof(ResponseModel<UserRes?>), StatusCodes.Status200OK)]
+    [Authorize]
+    public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordReq req)
     {
-        return Response("Profile");
+        var res = await _accountService.ChangePasswordAsync(req);
+        return Response(res);
     }
 }

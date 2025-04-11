@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using DataAccess.Contexts;
 using DataAccess.Models;
 using Microsoft.AspNetCore.Identity;
@@ -5,11 +6,11 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 public class ApplicationDataInitializer
 {
-    public static void Initialize(IServiceProvider serviceProvider)
+    public static async Task Initialize(IServiceProvider serviceProvider)
     {
         var context = serviceProvider.GetService<ApplicationDbContext>();
 
-        string[] roles = new string[] {"Admin", "Manager","Student",  "Teacher",};
+        string[] roles = new string[] {"Admin", "Manager","Student", "Teacher",};
 
         foreach (string role in roles)
         {
@@ -29,8 +30,8 @@ public class ApplicationDataInitializer
             LastName = "XXXX",
             Email = "xxxx@example.com",
             NormalizedEmail = "XXXX@EXAMPLE.COM",
-            UserName = "Owner",
-            NormalizedUserName = "OWNER",
+            UserName = "administrator",
+            NormalizedUserName = "ADMINISTRATOR",
             PhoneNumber = "+111111111111",
             SecurityStamp = Guid.NewGuid().ToString("D")
         };
@@ -47,15 +48,19 @@ public class ApplicationDataInitializer
 
         }
 
-        AssignRoles(serviceProvider, user.Email, roles);
+        await AssignRoles(serviceProvider, user.Email, roles);
 
-        context.SaveChangesAsync();
+        await context.SaveChangesAsync();
     }
 
     public static async Task<IdentityResult> AssignRoles(IServiceProvider services, string email, string[] roles)
     {
-        UserManager<ApplicationUser> _userManager = services.GetService<UserManager<ApplicationUser>>();
+        UserManager<ApplicationUser> _userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         ApplicationUser user = await _userManager.FindByEmailAsync(email);
+        if (user == null)
+        {
+            throw new Exception("User not found for email: " + email);
+        }
         var result = await _userManager.AddToRolesAsync(user, roles);
 
         return result;

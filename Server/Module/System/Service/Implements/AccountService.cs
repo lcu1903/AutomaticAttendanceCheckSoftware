@@ -40,6 +40,31 @@ public class AccountService : DomainService, IAccountService
         _bus = bus;
     }
 
+    public async Task<UserRes?> ChangePasswordAsync(ChangePasswordReq req)
+    {
+        var user = await _userManager.Users.FirstOrDefaultAsync(x=> x.Id == req.UserId);
+        if(user is null)
+        {
+            await _bus.RaiseEvent(new DomainNotification("error.userNotFound", "message.pleaseCheckAgain"));
+            return null;
+        }
+        var result = await _userManager.ChangePasswordAsync(user, req.OldPassword, req.NewPassword);
+        if(result.Succeeded)
+        {
+            return new UserRes
+            {
+                UserId = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                FullName = user.FullName,
+            };
+        }else{
+            await _bus.RaiseEvent(new DomainNotification("error.changePasswordFailed", "message.pleaseCheckAgain"));
+            return null;
+        }
+    }
+
     public async Task<LoginRes> LoginAsync(LoginReq req)
     {
         var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == req.UserName || x.UserName == req.UserName);

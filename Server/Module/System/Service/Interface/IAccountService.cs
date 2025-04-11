@@ -4,8 +4,9 @@ using Core.Interfaces;
 namespace System.Service.Interface;
 public interface IAccountService : IDomainService
 {
-    public Task<LoginRes> LoginAsync (LoginReq req);
-    public Task<LoginRes> RegisterAsync (RegisterReq req);
-    public Task<LoginRes> RefreshTokenAsync (RefreshTokenReq req);
+    Task<LoginRes> LoginAsync (LoginReq req);
+    Task<LoginRes> RegisterAsync (RegisterReq req);
+    Task<LoginRes> RefreshTokenAsync (RefreshTokenReq req);
+    Task<UserRes?> ChangePasswordAsync (ChangePasswordReq req);
 }
 
