@@ -12,12 +12,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace System.Services;
-public class UserService : DomainService, IUserService 
+public class UserService : DomainService, IUserService
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IMapper _mapper;
     private readonly IMediatorHandler _bus;
-    public UserService(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, IMediatorHandler bus, IMapper mapper, INotificationHandler<DomainNotification> notifications): base(notifications, unitOfWork, bus)
+    public UserService(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, IMediatorHandler bus, IMapper mapper, INotificationHandler<DomainNotification> notifications) : base(notifications, unitOfWork, bus)
     {
         _userManager = userManager;
         _mapper = mapper;
@@ -25,8 +25,8 @@ public class UserService : DomainService, IUserService
     }
     public async Task<IEnumerable<UserRes>> GetAllUsersAsync()
     {
-        var users =  _userManager.Users.Where(e=>e.IsDelete == false);
-        return await users.ProjectTo<UserRes>(_mapper.ConfigurationProvider).OrderBy(e=>e.UserName).ToListAsync();
+        var users = _userManager.Users.Where(e => e.IsDelete == false);
+        return await users.ProjectTo<UserRes>(_mapper.ConfigurationProvider).OrderBy(e => e.UserName).ToListAsync();
     }
 
     public async Task<UserRes?> CreateUserAsync(UserCreateReq req)
@@ -37,19 +37,21 @@ public class UserService : DomainService, IUserService
         if (result.Succeeded)
         {
             Commit();
-            return await _userManager.Users.Where(e=>e.Id == user.Id).ProjectTo<UserRes>(_mapper.ConfigurationProvider).FirstAsync();
-        }else{
-            await _bus.RaiseEvent(new DomainNotification("error", "message.userCreateFailed"));
+            return await _userManager.Users.Where(e => e.Id == user.Id).ProjectTo<UserRes>(_mapper.ConfigurationProvider).FirstAsync();
+        }
+        else
+        {
+            await _bus.RaiseEvent(new DomainNotification("error", "system.message.userCreateFailed"));
             return null;
         }
-        
-    
+
+
     }
 
     public async Task<bool> DeleteUserAsync(string userId)
     {
-        var user = _userManager.Users.FirstOrDefault(e=>e.Id == userId);
-        if(user is null)
+        var user = _userManager.Users.FirstOrDefault(e => e.Id == userId);
+        if (user is null)
         {
             return false;
         }
@@ -59,7 +61,9 @@ public class UserService : DomainService, IUserService
         {
             Commit();
             return true;
-        }else{
+        }
+        else
+        {
             return false;
         }
     }
@@ -68,10 +72,10 @@ public class UserService : DomainService, IUserService
 
     public async Task<UserRes?> GetUserByIdAsync(string id)
     {
-        var user = await  _userManager.Users.Where(e=>e.Id == id).ProjectTo<UserRes>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
-        if(user is null)
+        var user = await _userManager.Users.Where(e => e.Id == id).ProjectTo<UserRes>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
+        if (user is null)
         {
-            await _bus.RaiseEvent(new DomainNotification("error", "message.userNotFound"));
+            await _bus.RaiseEvent(new DomainNotification("error", "system.message.userNotFound"));
             return null;
         }
         return user;
@@ -79,10 +83,10 @@ public class UserService : DomainService, IUserService
 
     public async Task<UserRes?> UpdateUserAsync(string userId, UserUpdateReq req)
     {
-        var user = await _userManager.Users.FirstOrDefaultAsync(e=>e.Id == userId);
-        if(user is null)
+        var user = await _userManager.Users.FirstOrDefaultAsync(e => e.Id == userId);
+        if (user is null)
         {
-            await _bus.RaiseEvent(new DomainNotification("error", "message.userNotFound"));
+            await _bus.RaiseEvent(new DomainNotification("error", "system.message.userNotFound"));
             return null;
         }
         user.FullName = req.FullName;
@@ -93,11 +97,13 @@ public class UserService : DomainService, IUserService
         if (result.Succeeded)
         {
             Commit();
-            return await _userManager.Users.Where(e=>e.Id == user.Id).ProjectTo<UserRes>(_mapper.ConfigurationProvider).FirstAsync();
-        }else{
-            await _bus.RaiseEvent(new DomainNotification("error", "message.userUpdateFailed"));
+            return await _userManager.Users.Where(e => e.Id == user.Id).ProjectTo<UserRes>(_mapper.ConfigurationProvider).FirstAsync();
+        }
+        else
+        {
+            await _bus.RaiseEvent(new DomainNotification("error", "system.message.userUpdateFailed"));
             return null;
         }
-        
+
     }
 }

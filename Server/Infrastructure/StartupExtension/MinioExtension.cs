@@ -1,5 +1,6 @@
 using Minio;
 using Minio.AspNetCore;
+using Minio.DataModel.Args;
 namespace StartupExtensions;
 
 public static class MinioExtension
@@ -21,6 +22,7 @@ public static class MinioExtension
             });
 
         });
+
         // services.AddTransient<AuthHeaderHandler>();
         // services.AddRefitClient<IMinioApi>().ConfigureHttpClient(c =>
         // {

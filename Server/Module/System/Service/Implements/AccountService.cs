@@ -17,7 +17,7 @@ public class AccountService : DomainService, IAccountService
     private readonly IJwtFactory _jwtFactory;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
-     private readonly ApplicationDbContext _context;
+    private readonly ApplicationDbContext _context;
     private readonly IMediatorHandler _bus;
     private readonly RoleManager<IdentityRole> _roleManager;
 
@@ -42,14 +42,14 @@ public class AccountService : DomainService, IAccountService
 
     public async Task<UserRes?> ChangePasswordAsync(ChangePasswordReq req)
     {
-        var user = await _userManager.Users.FirstOrDefaultAsync(x=> x.Id == req.UserId);
-        if(user is null)
+        var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == req.UserId);
+        if (user is null)
         {
-            await _bus.RaiseEvent(new DomainNotification("error.userNotFound", "message.pleaseCheckAgain"));
+            await _bus.RaiseEvent(new DomainNotification("system.error.userNotFound", "system.message.pleaseCheckAgain"));
             return null;
         }
         var result = await _userManager.ChangePasswordAsync(user, req.OldPassword, req.NewPassword);
-        if(result.Succeeded)
+        if (result.Succeeded)
         {
             return new UserRes
             {
@@ -59,8 +59,10 @@ public class AccountService : DomainService, IAccountService
                 PhoneNumber = user.PhoneNumber,
                 FullName = user.FullName,
             };
-        }else{
-            await _bus.RaiseEvent(new DomainNotification("error.changePasswordFailed", "message.pleaseCheckAgain"));
+        }
+        else
+        {
+            await _bus.RaiseEvent(new DomainNotification("system.error.changePasswordFailed", "system.message.pleaseCheckAgain"));
             return null;
         }
     }
@@ -68,18 +70,18 @@ public class AccountService : DomainService, IAccountService
     public async Task<LoginRes> LoginAsync(LoginReq req)
     {
         var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == req.UserName || x.UserName == req.UserName);
-        if(user is null)
+        if (user is null)
         {
-            await _bus.RaiseEvent(new DomainNotification("error.userNotFound", "message.pleaseCheckAgain"));
+            await _bus.RaiseEvent(new DomainNotification("system.error.userNotFound", "system.message.pleaseCheckAgain"));
             return null;
         }
         var result = await _signInManager.PasswordSignInAsync(user, req.Password, false, false);
-        if(result.Succeeded)
+        if (result.Succeeded)
         {
             var token = await GenerateToken(user);
-             var listExpiredToken = await _context.RefreshTokens
-                .Where(d => d.UserId == user.Id)
-                .Where(d => d.ExpiryDate < DateTime.UtcNow).ToListAsync();
+            var listExpiredToken = await _context.RefreshTokens
+               .Where(d => d.UserId == user.Id)
+               .Where(d => d.ExpiryDate < DateTime.UtcNow).ToListAsync();
             _context.RefreshTokens.RemoveRange(listExpiredToken);
             await _context.SaveChangesAsync();
             return new LoginRes
@@ -94,9 +96,11 @@ public class AccountService : DomainService, IAccountService
                     FullName = user.FullName,
                 }
             };
-            
-        }else{
-            await _bus.RaiseEvent(new DomainNotification("error.loginFailed", "message.pleaseCheckAgain"));
+
+        }
+        else
+        {
+            await _bus.RaiseEvent(new DomainNotification("system.error.loginFailed", "system.message.pleaseCheckAgain"));
             return null;
         }
     }
@@ -104,13 +108,13 @@ public class AccountService : DomainService, IAccountService
     public async Task<LoginRes> RefreshTokenAsync(RefreshTokenReq req)
     {
         var currentValidExistToken = await _context.RefreshTokens.FirstOrDefaultAsync(d => d.Token == req.RefreshToken && d.ExpiryDate > DateTime.UtcNow);
-        if(currentValidExistToken is null)
+        if (currentValidExistToken is null)
         {
             return null;
         }
         var user = await _userManager.Users.Where(d => d.Id == currentValidExistToken.UserId)
             .FirstOrDefaultAsync();
-        if(user is null || user.IsDelete || !user.IsActive)
+        if (user is null || user.IsDelete || !user.IsActive)
         {
             return null;
         }
@@ -142,13 +146,13 @@ public class AccountService : DomainService, IAccountService
             IsDelete = false
         };
         var isExist = await _userManager.Users.AnyAsync(x => x.Email == req.Email || x.UserName == req.UserName);
-        if(isExist)
+        if (isExist)
         {
-            await _bus.RaiseEvent(new DomainNotification("error.userExist", "message.pleaseCheckAgain"));
+            await _bus.RaiseEvent(new DomainNotification("system.error.userExist", "system.message.pleaseCheckAgain"));
             return null;
         }
         var result = await _userManager.CreateAsync(user, req.Password);
-        if(result.Succeeded)
+        if (result.Succeeded)
         {
             var token = await GenerateToken(user);
             return new LoginRes
@@ -163,8 +167,10 @@ public class AccountService : DomainService, IAccountService
                     FullName = user.FullName,
                 }
             };
-        }else{
-            await _bus.RaiseEvent(new DomainNotification("error.registerFailed", "message.pleaseCheckAgain"));
+        }
+        else
+        {
+            await _bus.RaiseEvent(new DomainNotification("system.error.registerFailed", "system.message.pleaseCheckAgain"));
             return null;
         }
 
@@ -194,7 +200,7 @@ public class AccountService : DomainService, IAccountService
         // }
 
         // Generate access token
-        var jwtToken = await _jwtFactory.GenerateJwtToken(claimsIdentity);  
+        var jwtToken = await _jwtFactory.GenerateJwtToken(claimsIdentity);
 
         // Add refresh token
         var refreshToken = new RefreshToken

@@ -48,8 +48,8 @@ public class AccountController : ApiController
                 Data = null,
                 Errors = new List<ErrorMessage>(){
                     new ErrorMessage{
-                        Key = "error.refreshTokenExpired",
-                        Description = "message.pleaseLoginAgain",
+                        Key = "system.error.refreshTokenExpired",
+                        Description = "system.message.pleaseLoginAgain",
                     }
                 },
                 Success = false,
