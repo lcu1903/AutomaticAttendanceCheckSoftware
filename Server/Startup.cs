@@ -49,6 +49,7 @@ public class Startup
         // ----- Auth -----
         services.AddCustomizedAuth(Configuration);
 
+
         // ----- AutoMapper -----
         services.AddAutoMapperSetup();
 
@@ -73,11 +74,11 @@ public class Startup
 
         // ----- Minio -----
         services.AddCustomizedMinio(Configuration);
-    
-     
+
+
         // ----- Hangfire -----
         services.AddHangfire(Configuration);
-        
+
 
         // ----- In memory cache -----
         services.AddRedisCache(Configuration);
@@ -159,6 +160,7 @@ public class Startup
         app.UseCustomizedAuth();
 
 
+
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers()
@@ -177,7 +179,7 @@ public class Startup
          service => service.CleanupUnusedObjectsAsync(CancellationToken.None),
          () => Cron.Daily(),
          new RecurringJobOptions { TimeZone = TimeZoneInfo.Local }); // hoặc Cron theo thời gian bạn mong muốn
-        
+
 
         //Redis
         // app.UseRedisCache(Configuration);

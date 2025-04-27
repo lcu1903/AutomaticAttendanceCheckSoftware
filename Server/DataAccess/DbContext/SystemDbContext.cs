@@ -24,6 +24,7 @@ public partial class ApplicationDbContext
             entity.Property(e => e.PageName).HasMaxLength(128);
             entity.Property(e => e.PageUrl).HasMaxLength(128);
             entity.Property(e => e.PageIcon).HasMaxLength(128);
+            entity.Property(e => e.ParentId).HasMaxLength(128);
             entity.Property(e => e.CreatedUserId).HasMaxLength(128);
             entity.Property(e => e.CreateDate).HasPrecision(6);
             entity.Property(e => e.UpdateDate).HasPrecision(6);

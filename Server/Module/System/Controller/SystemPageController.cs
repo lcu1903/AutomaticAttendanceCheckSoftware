@@ -9,7 +9,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace System.Controller;
-[Route("api/systemPages")]
+[Route("api/system-pages")]
 public class SystemPageController : ApiController
 {
     private readonly ISystemPageService _systemPageService;

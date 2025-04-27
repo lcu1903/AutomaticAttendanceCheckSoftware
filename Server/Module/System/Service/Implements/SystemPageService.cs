@@ -12,6 +12,7 @@ using System.Repository.Interface;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper.QueryableExtensions;
+using System.Models;
 
 namespace System.Service.Implements;
 public class SystemPageService : DomainService, ISystemPageService

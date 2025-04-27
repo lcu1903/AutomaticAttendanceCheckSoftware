@@ -1,3 +1,4 @@
+using System.Models;
 using Core.Interfaces;
 
 namespace System.Service.Interface;

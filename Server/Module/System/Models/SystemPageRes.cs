@@ -1,3 +1,4 @@
+namespace System.Models;
 public class SystemPageRes
 {
     public string PageId { get; set; } = null!;
@@ -7,4 +8,5 @@ public class SystemPageRes
     public string? PageUrl { get; set; }
 
     public string? PageIcon { get; set; }
+    public string? ParentId { get; set; }
 }

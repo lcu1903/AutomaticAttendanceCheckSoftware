@@ -30,7 +30,7 @@ public partial class ApplicationDbContext(DbContextOptions<ApplicationDbContext>
         // MasterOnModelCreating(builder);
         // NotificationOnModelCreating(builder);
         base.OnModelCreating(builder);
-       
+
     }
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
@@ -62,11 +62,12 @@ public partial class ApplicationDbContext(DbContextOptions<ApplicationDbContext>
             .Where(x => x.State is EntityState.Added or EntityState.Modified);
 
         // TODO: Get real current user id
+        Console.WriteLine("CONTEXT", httpContextAccessor?.HttpContext?.User);
         var currentUserId = httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "guest";
 
         foreach (var entry in filtered)
         {
-            
+
             if (entry.State == EntityState.Added)
             {
                 ((EntityAudit)entry.Entity).CreateDate = DateTime.UtcNow;
@@ -75,7 +76,7 @@ public partial class ApplicationDbContext(DbContextOptions<ApplicationDbContext>
 
             ((EntityAudit)entry.Entity).UpdateDate = DateTime.UtcNow;
             ((EntityAudit)entry.Entity).UpdatedUserId = currentUserId;
-            
+
         }
 
     }
