@@ -21,7 +21,7 @@ public class UserController : ApiController
         _userService = userService;
     }
     [HttpGet]
-    [RedisCache(10, "users")]
+    [RedisCache(cacheKeyPrefix: "users")]
     [ProducesResponseType(typeof(ResponseModel<IEnumerable<UserRes>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllUsersAsync([FromQuery] string? textSearch, [FromQuery] List<string>? departmentIds, [FromQuery] List<string>? positionIds)
     {

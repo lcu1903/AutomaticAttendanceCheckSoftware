@@ -7,4 +7,5 @@ public class SystemPageCreateReq
 
     public string? PageIcon { get; set; }
     public string? ParentId { get; set; }
+    public int PageOrder { get; set; } = 0;
 }

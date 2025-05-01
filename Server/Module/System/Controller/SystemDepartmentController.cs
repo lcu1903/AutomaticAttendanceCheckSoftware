@@ -21,6 +21,7 @@ public class SystemDepartmentController : ApiController
         _systemDepartmentService = systemDepartmentService;
     }
     [HttpGet]
+    [RedisCache(25, cacheKeyPrefix: "system-departments")]
     [ProducesResponseType(typeof(ResponseModel<IEnumerable<SystemDepartmentRes>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync(
         [FromQuery] string? textSearch)
@@ -29,6 +30,7 @@ public class SystemDepartmentController : ApiController
         return Response(res);
     }
     [HttpGet("{systemDepartmentId}")]
+    [RedisCache(25, cacheKeyPrefix: "system-departments")]
     [ProducesResponseType(typeof(ResponseModel<SystemDepartmentRes?>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetSystemDepartmentByIdAsync(string systemDepartmentId)
     {
@@ -36,6 +38,7 @@ public class SystemDepartmentController : ApiController
         return Response(res);
     }
     [HttpPost]
+    [RedisCache(25, "system-departments", "system-departments")]
     [ProducesResponseType(typeof(ResponseModel<SystemDepartmentRes?>), StatusCodes.Status200OK)]
     public async Task<IActionResult> CreateSystemDepartmentAsync([FromBody] SystemDepartmentCreateReq req)
     {
@@ -43,6 +46,7 @@ public class SystemDepartmentController : ApiController
         return Response(res);
     }
     [HttpPut("{systemDepartmentId}")]
+    [RedisCache(25, "system-departments", "system-departments")]
     [ProducesResponseType(typeof(ResponseModel<SystemDepartmentRes?>), StatusCodes.Status200OK)]
     public async Task<IActionResult> UpdateSystemDepartmentAsync(string systemDepartmentId, [FromBody] SystemDepartmentUpdateReq req)
     {
@@ -50,6 +54,7 @@ public class SystemDepartmentController : ApiController
         return Response(res);
     }
     [HttpDelete("{systemDepartmentId}")]
+    [RedisCache(25, "system-departments", "system-departments")]
     [ProducesResponseType(typeof(ResponseModel<bool>), StatusCodes.Status200OK)]
     public async Task<IActionResult> DeleteSystemDepartmentAsync(string systemDepartmentId)
     {
@@ -57,6 +62,7 @@ public class SystemDepartmentController : ApiController
         return Response(res);
     }
     [HttpDelete("delete-range")]
+    [RedisCache(25, "system-departments", "system-departments")]
     [ProducesResponseType(typeof(ResponseModel<bool>), StatusCodes.Status200OK)]
     public async Task<IActionResult> DeleteRangeSystemDepartmentAsync([FromBody] List<string> ids)
     {

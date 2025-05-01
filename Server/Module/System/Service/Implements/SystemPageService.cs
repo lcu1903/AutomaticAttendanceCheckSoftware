@@ -71,7 +71,7 @@ public class SystemPageService : DomainService, ISystemPageService
         }
     }
 
- 
+
 
     public async Task<List<SystemPageRes>> GetAllAsync(string? textSearch)
     {
@@ -80,7 +80,7 @@ public class SystemPageService : DomainService, ISystemPageService
         {
             systemPages = systemPages.Where(e => e.PageName.ToLower().Contains(textSearch.ToLower()));
         }
-        return await systemPages.ProjectTo<SystemPageRes>(_mapper.ConfigurationProvider).ToListAsync();
+        return await systemPages.OrderBy(e => e.PageOrder).ProjectTo<SystemPageRes>(_mapper.ConfigurationProvider).ToListAsync();
     }
 
     public async Task<SystemPageRes?> GetByIdAsync(string id)
@@ -105,6 +105,7 @@ public class SystemPageService : DomainService, ISystemPageService
         systemPage.PageName = req.PageName;
         systemPage.PageUrl = req.PageUrl;
         systemPage.PageIcon = req.PageIcon;
+        systemPage.PageOrder = req.PageOrder;
         var isSuccess = Commit();
         if (isSuccess)
         {

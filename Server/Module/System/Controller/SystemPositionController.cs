@@ -21,6 +21,7 @@ public class SystemPositionController : ApiController
         _systemPositionService = systemPositionService;
     }
     [HttpGet]
+    [RedisCache(25, cacheKeyPrefix: "system-positions")]
     [ProducesResponseType(typeof(ResponseModel<IEnumerable<SystemPositionRes>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync(
         [FromQuery] string? textSearch)
@@ -29,6 +30,7 @@ public class SystemPositionController : ApiController
         return Response(res);
     }
     [HttpGet("{systemPositionId}")]
+    [RedisCache(25, cacheKeyPrefix: "system-positions")]
     [ProducesResponseType(typeof(ResponseModel<SystemPositionRes?>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetSystemPositionByIdAsync(string systemPositionId)
     {
@@ -36,6 +38,7 @@ public class SystemPositionController : ApiController
         return Response(res);
     }
     [HttpPost]
+    [RedisCache(25, "system-positions", "system-positions")]
     [ProducesResponseType(typeof(ResponseModel<SystemPositionRes?>), StatusCodes.Status200OK)]
     public async Task<IActionResult> CreateSystemPositionAsync([FromBody] SystemPositionCreateReq req)
     {
@@ -43,6 +46,7 @@ public class SystemPositionController : ApiController
         return Response(res);
     }
     [HttpPut("{systemPositionId}")]
+    [RedisCache(25, "system-positions", "system-positions")]
     [ProducesResponseType(typeof(ResponseModel<SystemPositionRes?>), StatusCodes.Status200OK)]
     public async Task<IActionResult> UpdateSystemPositionAsync(string systemPositionId, [FromBody] SystemPositionUpdateReq req)
     {
@@ -50,6 +54,7 @@ public class SystemPositionController : ApiController
         return Response(res);
     }
     [HttpDelete("{systemPositionId}")]
+    [RedisCache(25, "system-positions", "system-positions")]
     [ProducesResponseType(typeof(ResponseModel<bool>), StatusCodes.Status200OK)]
     public async Task<IActionResult> DeleteSystemPositionAsync(string systemPositionId)
     {
@@ -57,6 +62,7 @@ public class SystemPositionController : ApiController
         return Response(res);
     }
     [HttpDelete("delete-range")]
+    [RedisCache(25, "system-positions", "system-positions")]
     [ProducesResponseType(typeof(ResponseModel<bool>), StatusCodes.Status200OK)]
     public async Task<IActionResult> DeleteRangeSystemPositionAsync([FromBody] List<string> systemPositionIds)
     {

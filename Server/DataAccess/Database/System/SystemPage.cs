@@ -12,4 +12,5 @@ public class SystemPage : EntityAudit
     public string? PageIcon { get; set; }
 
     public string? ParentId { get; set; }
+    public int PageOrder { get; set; } = 0;
 }

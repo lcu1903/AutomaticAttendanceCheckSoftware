@@ -21,6 +21,7 @@ public class SystemPageController : ApiController
         _systemPageService = systemPageService;
     }
     [HttpGet]
+    [RedisCache(25, cacheKeyPrefix: "system-pages")]
     [ProducesResponseType(typeof(ResponseModel<IEnumerable<SystemPageRes>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync(
         [FromQuery] string? textSearch)
@@ -29,6 +30,7 @@ public class SystemPageController : ApiController
         return Response(res);
     }
     [HttpGet("{systemPageId}")]
+    [RedisCache(25, cacheKeyPrefix: "system-pages")]
     [ProducesResponseType(typeof(ResponseModel<SystemPageRes?>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetSystemPageByIdAsync(string systemPageId)
     {
@@ -36,6 +38,7 @@ public class SystemPageController : ApiController
         return Response(res);
     }
     [HttpPost]
+    [RedisCache(25, "system-pages", "system-pages")]
     [ProducesResponseType(typeof(ResponseModel<SystemPageRes?>), StatusCodes.Status200OK)]
     public async Task<IActionResult> CreateSystemPageAsync([FromBody] SystemPageCreateReq req)
     {
@@ -43,6 +46,7 @@ public class SystemPageController : ApiController
         return Response(res);
     }
     [HttpPut("{systemPageId}")]
+    [RedisCache(25, "system-pages", "system-pages")]
     [ProducesResponseType(typeof(ResponseModel<SystemPageRes?>), StatusCodes.Status200OK)]
     public async Task<IActionResult> UpdateSystemPageAsync(string systemPageId, [FromBody] SystemPageUpdateReq req)
     {
@@ -50,6 +54,7 @@ public class SystemPageController : ApiController
         return Response(res);
     }
     [HttpDelete("{systemPageId}")]
+    [RedisCache(25, "system-pages", "system-pages")]
     [ProducesResponseType(typeof(ResponseModel<bool>), StatusCodes.Status200OK)]
     public async Task<IActionResult> DeleteSystemPageAsync(string systemPageId)
     {

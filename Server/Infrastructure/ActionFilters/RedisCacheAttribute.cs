@@ -33,8 +33,8 @@ public class RedisCacheAttribute : Attribute, IAsyncActionFilter
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
         _context = context;
-        
-        
+
+
         if (!_cacheEnabled) // Bỏ qua nếu cache bị tắt
         {
             await next();
@@ -66,7 +66,11 @@ public class RedisCacheAttribute : Attribute, IAsyncActionFilter
         // Sau khi action thực thi
         if (executedContext.Result is ObjectResult objectResult && objectResult.StatusCode == 200)
         {
-            string response = JsonSerializer.Serialize(objectResult.Value);
+            var jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            string response = JsonSerializer.Serialize(objectResult.Value, jsonOptions);
             var cacheOptions = new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_expiryInMinutes)
@@ -78,9 +82,9 @@ public class RedisCacheAttribute : Attribute, IAsyncActionFilter
                 await cache.SetAsync(cacheKey, Encoding.UTF8.GetBytes(response), cacheOptions);
             }
             // Xóa cache liên quan cho POST/PUT/DELETE
-            else if (_invalidatePatterns.Length > 0 && 
-                     (context.HttpContext.Request.Method == "POST" || 
-                      context.HttpContext.Request.Method == "PUT" || 
+            else if (_invalidatePatterns.Length > 0 &&
+                     (context.HttpContext.Request.Method == "POST" ||
+                      context.HttpContext.Request.Method == "PUT" ||
                       context.HttpContext.Request.Method == "DELETE"))
             {
                 await InvalidateCache(_invalidatePatterns);
@@ -102,8 +106,8 @@ public class RedisCacheAttribute : Attribute, IAsyncActionFilter
 
         // Thêm body hash nếu là POST/PUT
         if ((
-            context.Request.Method == "POST" || 
-            context.Request.Method == "PUT" || 
+            context.Request.Method == "POST" ||
+            context.Request.Method == "PUT" ||
             context.Request.Method == "DELETE" ||
             context.Request.Method == "PATCH"
         ) && context.Request.Body.CanRead)
@@ -125,7 +129,7 @@ public class RedisCacheAttribute : Attribute, IAsyncActionFilter
             .ComputeHash(Encoding.UTF8.GetBytes(body)));
     }
 
-    private async Task InvalidateCache( string[] patterns)
+    private async Task InvalidateCache(string[] patterns)
     {
         var redis = _context.HttpContext.RequestServices.GetRequiredService<IConnectionMultiplexer>();
         var server = redis.GetServer(redis.GetEndPoints()[0]);
@@ -134,7 +138,7 @@ public class RedisCacheAttribute : Attribute, IAsyncActionFilter
         foreach (var pattern in patterns)
         {
             var keys = server.Keys(pattern: $"*:{pattern.Trim()}*").ToArray();
-            
+
             foreach (var key in keys)
             {
                 await db.KeyDeleteAsync(key);
