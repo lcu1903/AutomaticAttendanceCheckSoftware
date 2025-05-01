@@ -58,6 +58,11 @@ public class AccountService : DomainService, IAccountService
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
                 FullName = user.FullName,
+                DepartmentId = user.DepartmentId,
+                PositionId = user.PositionId,
+                DepartmentName = user.Department?.DepartmentName,
+                PositionName = user.Position?.PositionName,
+                ImageUrl = user.ImageUrl,
             };
         }
         else

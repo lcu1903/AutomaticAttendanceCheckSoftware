@@ -8,6 +8,10 @@ public class DomainToViewMappingProfile : Profile
     public DomainToViewMappingProfile()
     {
         CreateMap<SystemPage, SystemPageRes>();
+        CreateMap<SystemDepartment, SystemDepartmentRes>()
+            .ForMember(dto => dto.DepartmentParentName, db => db.MapFrom(src => src.DepartmentParent.DepartmentName));
+        CreateMap<SystemPosition, SystemPositionRes>()
+            .ForMember(dto => dto.PositionParentName, db => db.MapFrom(src => src.PositionParent.PositionName));
         CreateMap<UserCreateReq, ApplicationUser>()
             .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
             .ForMember(dest => dest.NormalizedUserName, opt => opt.MapFrom(src => src.UserName.ToUpper()))

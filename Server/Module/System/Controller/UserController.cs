@@ -12,20 +12,20 @@ namespace System.Controller;
 [Route("api/users")]
 public class UserController : ApiController
 {
-   private readonly IUserService _userService;
+    private readonly IUserService _userService;
     public UserController(
-        IUserService userService, 
+        IUserService userService,
         INotificationHandler<DomainNotification> notifications,
-        IMediatorHandler bus): base(notifications, bus)
+        IMediatorHandler bus) : base(notifications, bus)
     {
-         _userService = userService;
+        _userService = userService;
     }
     [HttpGet]
-    [RedisCache(10,"users")]
+    [RedisCache(10, "users")]
     [ProducesResponseType(typeof(ResponseModel<IEnumerable<UserRes>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllUsersAsync()
+    public async Task<IActionResult> GetAllUsersAsync([FromQuery] string? textSearch, [FromQuery] List<string>? departmentIds, [FromQuery] List<string>? positionIds)
     {
-        var res = await _userService.GetAllUsersAsync();
+        var res = await _userService.GetAllUsersAsync(textSearch, departmentIds, positionIds);
         return Response(res);
     }
     [HttpGet("{userId}")]

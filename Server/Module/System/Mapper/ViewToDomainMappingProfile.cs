@@ -11,6 +11,12 @@ public class ViewToDomainMappingProfile : Profile
         CreateMap<SystemPageCreateReq, SystemPage>();
         CreateMap<SystemPageUpdateReq, SystemPage>();
 
+        CreateMap<SystemDepartmentCreateReq, SystemDepartment>();
+        CreateMap<SystemDepartmentUpdateReq, SystemDepartment>();
+
+        CreateMap<SystemPositionCreateReq, SystemPosition>();
+        CreateMap<SystemPositionUpdateReq, SystemPosition>();
+
         CreateMap<LoginReq, ApplicationUser>();
 
 

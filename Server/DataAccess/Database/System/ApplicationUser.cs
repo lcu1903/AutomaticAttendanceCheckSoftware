@@ -28,8 +28,12 @@ public class ApplicationUser : IdentityUser
     public bool IsActive { get; set; }
     public bool IsDelete { get; set; }
     [MaxLength(500)]
-    public string? ImageUrl { get; set; } = null;
+    public string? ImageUrl { get; set; }
     [MaxLength(500)]
-    public string? Address { get; set; } = null;
+    public string? Address { get; set; }
+    public string? DepartmentId { get; set; }
+    public string? PositionId { get; set; }
+    public virtual SystemPosition? Position { get; set; }
+    public virtual SystemDepartment? Department { get; set; }
 
 }

@@ -9,5 +9,6 @@ public interface ISystemPageService : IDomainService
     Task<SystemPageRes?> AddAsync(SystemPageCreateReq req);
     Task<SystemPageRes?> UpdateAsync(string pageId, SystemPageUpdateReq req);
     Task<bool> DeleteAsync(string id);
+    
 }
 

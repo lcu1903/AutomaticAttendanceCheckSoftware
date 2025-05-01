@@ -23,10 +23,26 @@ public class UserService : DomainService, IUserService
         _mapper = mapper;
         _bus = bus;
     }
-    public async Task<IEnumerable<UserRes>> GetAllUsersAsync()
+    public async Task<IEnumerable<UserRes>> GetAllUsersAsync(string? textSearch, List<string>? departmentIds, List<string>? positionIds)
     {
         var users = _userManager.Users.Where(e => e.IsDelete == false);
-        return await users.ProjectTo<UserRes>(_mapper.ConfigurationProvider).OrderBy(e => e.UserName).ToListAsync();
+        if (!string.IsNullOrEmpty(textSearch))
+        {
+            var normalizedTextSearch = textSearch.ToLower();
+            users = users.Where(e => e.UserName.ToLower().Contains(normalizedTextSearch) ||
+             e.FullName.ToLower().Contains(normalizedTextSearch) ||
+             e.Email.ToLower().Contains(normalizedTextSearch) ||
+             e.PhoneNumber.ToLower().Contains(normalizedTextSearch));
+        }
+        if (departmentIds != null && departmentIds.Count > 0)
+        {
+            users = users.Where(e => departmentIds.Contains(e.DepartmentId));
+        }
+        if (positionIds != null && positionIds.Count > 0)
+        {
+            users = users.Where(e => positionIds.Contains(e.PositionId));
+        }
+        return await users.ProjectTo<UserRes>(_mapper.ConfigurationProvider).OrderBy(e => e.FullName).ToListAsync();
     }
 
     public async Task<UserRes?> CreateUserAsync(UserCreateReq req)

@@ -71,12 +71,14 @@ public class SystemPageService : DomainService, ISystemPageService
         }
     }
 
+ 
+
     public async Task<List<SystemPageRes>> GetAllAsync(string? textSearch)
     {
         var systemPages = _systemPageRepo.GetAll();
         if (!string.IsNullOrEmpty(textSearch))
         {
-            systemPages = systemPages.Where(e => e.PageName.ToLower().Normalize().Contains(textSearch.ToLower().Normalize()));
+            systemPages = systemPages.Where(e => e.PageName.ToLower().Contains(textSearch.ToLower()));
         }
         return await systemPages.ProjectTo<SystemPageRes>(_mapper.ConfigurationProvider).ToListAsync();
     }

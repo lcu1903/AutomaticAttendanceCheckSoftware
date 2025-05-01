@@ -14,7 +14,7 @@ public class AccountController : ApiController
 {
     private readonly IAccountService _accountService;
     public AccountController(IAccountService accountService, INotificationHandler<DomainNotification> notifications,
-        IMediatorHandler bus): base(notifications, bus)
+        IMediatorHandler bus) : base(notifications, bus)
     {
         _accountService = accountService;
     }
@@ -41,7 +41,7 @@ public class AccountController : ApiController
     public async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenReq req)
     {
         var res = await _accountService.RefreshTokenAsync(req);
-           if(res is null)
+        if (res is null)
         {
             return StatusCode(498, new ResponseModel<LoginRes>
             {
