@@ -49,7 +49,7 @@ public class UserService : DomainService, IUserService
     {
         var user = _mapper.Map<ApplicationUser>(req);
         user.Id = Guid.NewGuid().ToString();
-        var result = await _userManager.CreateAsync(user, req.Password);
+        var result = await _userManager.CreateAsync(user, "123456");
         if (result.Succeeded)
         {
             Commit();
@@ -109,6 +109,9 @@ public class UserService : DomainService, IUserService
         user.Email = req.Email;
         user.PhoneNumber = req.PhoneNumber;
         user.UserName = req.UserName;
+        user.DepartmentId = req.DepartmentId;
+        user.PositionId = req.PositionId;
+        user.BirthdayValue = req.Birthdate;
         var result = await _userManager.UpdateAsync(user);
         if (result.Succeeded)
         {
@@ -121,5 +124,26 @@ public class UserService : DomainService, IUserService
             return null;
         }
 
+    }
+
+    public async Task<bool> DeleteRangeUserAsync(List<string> userIds)
+    {
+        var users = await _userManager.Users.Where(e => userIds.Contains(e.Id)).ToListAsync();
+        if (users.Count == 0)
+        {
+            return false;
+        }
+        foreach (var user in users)
+        {
+            user.IsDelete = true;
+            user.IsActive = false;
+        }
+        var isSuccess = Commit();
+        if (!isSuccess)
+        {
+            await _bus.RaiseEvent(new DomainNotification("error", "system.message.userDeleteFailed"));
+            return false;
+        }
+        return true;
     }
 }

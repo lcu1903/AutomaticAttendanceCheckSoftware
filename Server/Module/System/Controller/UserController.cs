@@ -59,4 +59,12 @@ public class UserController : ApiController
         var res = await _userService.DeleteUserAsync(userId);
         return Response(res);
     }
+    [HttpDelete("delete-range")]
+    [RedisCache(cacheKeyPrefix: "users", invalidatePatterns: "users", cacheEnabled: true)]
+    [ProducesResponseType(typeof(ResponseModel<bool>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> DeleteRangeUserAsync([FromBody] List<string> userIds)
+    {
+        var res = await _userService.DeleteRangeUserAsync(userIds);
+        return Response(res);
+    }
 }

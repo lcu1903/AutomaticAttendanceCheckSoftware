@@ -9,6 +9,7 @@ public interface IUserService : IDomainService
     Task<UserRes?> CreateUserAsync(UserCreateReq req);
     Task<UserRes?> UpdateUserAsync(string userId, UserUpdateReq req);
     Task<bool> DeleteUserAsync(string userId);
+    Task<bool> DeleteRangeUserAsync(List<string> userIds);
 
 }
 

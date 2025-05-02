@@ -16,6 +16,7 @@ public class DomainToViewMappingProfile : Profile
             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src => src.Department.DepartmentName))
             .ForMember(dest => dest.PositionName, opt => opt.MapFrom(src => src.Position.PositionName))
+            .ForMember(dest => dest.Birthdate, opt => opt.MapFrom(src => src.BirthdayValue))
             ;
 
 

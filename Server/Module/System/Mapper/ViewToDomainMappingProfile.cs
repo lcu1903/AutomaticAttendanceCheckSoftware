@@ -25,7 +25,8 @@ public class ViewToDomainMappingProfile : Profile
             .ForMember(dest => dest.EmailConfirmed, opt => opt.MapFrom(src => true))
             .ForMember(dest => dest.PhoneNumberConfirmed, opt => opt.MapFrom(src => true))
             .ForMember(dest => dest.TwoFactorEnabled, opt => opt.MapFrom(src => false))
-            .ForMember(dest => dest.LockoutEnabled, opt => opt.MapFrom(src => false));
+            .ForMember(dest => dest.LockoutEnabled, opt => opt.MapFrom(src => false))
+            .ForMember(dest => dest.BirthdayValue, opt => opt.MapFrom(src => src.Birthdate));
 
 
     }
