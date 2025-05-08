@@ -26,9 +26,7 @@ public partial class ApplicationDbContext(DbContextOptions<ApplicationDbContext>
 
 
         SystemOnModelCreating(builder);
-        // CmmsOnModelCreating(builder);
-        // MasterOnModelCreating(builder);
-        // NotificationOnModelCreating(builder);
+        AacsOnModelCreating(builder);
         base.OnModelCreating(builder);
 
     }

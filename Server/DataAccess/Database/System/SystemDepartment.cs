@@ -10,4 +10,5 @@ public class SystemDepartment : EntityAudit
     public string? DepartmentParentId { get; set; }
     public string? Description { get; set; }
     public virtual SystemDepartment? DepartmentParent { get; set; }
+    public virtual ICollection<Class> Classes { get; set; } = new List<Class>();
 }

@@ -1,4 +1,5 @@
 using System.Models;
+using System.Repository.Interface;
 using System.Service.Interface;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
@@ -17,11 +18,21 @@ public class UserService : DomainService, IUserService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IMapper _mapper;
     private readonly IMediatorHandler _bus;
-    public UserService(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, IMediatorHandler bus, IMapper mapper, INotificationHandler<DomainNotification> notifications) : base(notifications, unitOfWork, bus)
+    private readonly IStudentRepo _studentRepo;
+    private readonly ITeacherRepo _teacherRepo;
+    public UserService(UserManager<ApplicationUser> userManager,
+    IUnitOfWork unitOfWork,
+    IMediatorHandler bus,
+    IMapper mapper,
+    IStudentRepo studentRepo,
+    ITeacherRepo teacherRepo,
+    INotificationHandler<DomainNotification> notifications) : base(notifications, unitOfWork, bus)
     {
         _userManager = userManager;
         _mapper = mapper;
         _bus = bus;
+        _studentRepo = studentRepo;
+        _teacherRepo = teacherRepo;
     }
     public async Task<IEnumerable<UserRes>> GetAllUsersAsync(string? textSearch, List<string>? departmentIds, List<string>? positionIds)
     {
@@ -49,6 +60,14 @@ public class UserService : DomainService, IUserService
     {
         var user = _mapper.Map<ApplicationUser>(req);
         user.Id = Guid.NewGuid().ToString();
+        if (req.StudentCode != null)
+        {
+            await _studentRepo.AddStudentAsync(req, user.Id);
+        }
+        if (req.TeacherCode != null)
+        {
+            await _teacherRepo.AddTeacherAsync(req, user.Id);
+        }
         var result = await _userManager.CreateAsync(user, "123456");
         if (result.Succeeded)
         {
@@ -75,6 +94,14 @@ public class UserService : DomainService, IUserService
         var result = _userManager.UpdateAsync(user);
         if (result.Result.Succeeded)
         {
+            if (user.Student != null)
+            {
+                await _studentRepo.DeleteStudentAsync(userId);
+            }
+            if (user.Teacher != null)
+            {
+                await _teacherRepo.DeleteTeacherAsync(userId);
+            }
             Commit();
             return true;
         }
@@ -115,6 +142,14 @@ public class UserService : DomainService, IUserService
         var result = await _userManager.UpdateAsync(user);
         if (result.Succeeded)
         {
+            if (req.StudentCode != null)
+            {
+                await _studentRepo.UpdateStudentAsync(req, user.Id);
+            }
+            if (req.TeacherCode != null)
+            {
+                await _teacherRepo.UpdateTeacherAsync(req, user.Id);
+            }
             Commit();
             return await _userManager.Users.Where(e => e.Id == user.Id).ProjectTo<UserRes>(_mapper.ConfigurationProvider).FirstAsync();
         }
@@ -137,6 +172,14 @@ public class UserService : DomainService, IUserService
         {
             user.IsDelete = true;
             user.IsActive = false;
+            if (user.Student != null)
+            {
+                await _studentRepo.DeleteStudentAsync(user.Id);
+            }
+            if (user.Teacher != null)
+            {
+                await _teacherRepo.DeleteTeacherAsync(user.Id);
+            }
         }
         var isSuccess = Commit();
         if (!isSuccess)

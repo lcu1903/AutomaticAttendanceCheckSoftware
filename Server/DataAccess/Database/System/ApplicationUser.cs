@@ -35,5 +35,8 @@ public class ApplicationUser : IdentityUser
     public string? PositionId { get; set; }
     public virtual SystemPosition? Position { get; set; }
     public virtual SystemDepartment? Department { get; set; }
+    public virtual Student? Student { get; set; }
+    public virtual Teacher? Teacher { get; set; }
+
 
 }
