@@ -130,6 +130,12 @@ public class TeacherService : DomainService, ITeacherService
 
     public async Task<TeacherRes?> UpdateAsync(string teacherId, TeacherUpdateReq req)
     {
+        var isExist = await _teacherRepo.GetAll().AnyAsync(e => e.TeacherCode == req.TeacherCode && e.TeacherId != teacherId);
+        if (isExist)
+        {
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.teacherCodeAlreadyExists"));
+            return null;
+        }
         var teacher = await _teacherRepo.GetAll().FirstOrDefaultAsync(e => e.TeacherId == teacherId);
         if (teacher is null)
         {

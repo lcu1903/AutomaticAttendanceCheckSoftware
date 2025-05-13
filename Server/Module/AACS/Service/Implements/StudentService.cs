@@ -130,6 +130,12 @@ public class StudentService : DomainService, IStudentService
 
     public async Task<StudentRes?> UpdateAsync(string studentId, StudentUpdateReq req)
     {
+        var isExist = await _studentRepo.GetAll().AnyAsync(e => e.StudentCode == req.StudentCode && e.StudentId != studentId);
+        if (isExist)
+        {
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.studentCodeAlreadyExists"));
+            return null;
+        }
         var student = await _studentRepo.GetAll().FirstOrDefaultAsync(e => e.StudentId == studentId);
         if (student is null)
         {

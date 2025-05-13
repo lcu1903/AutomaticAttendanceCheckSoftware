@@ -26,6 +26,9 @@ public class ViewToDomainMappingProfile : Profile
         CreateMap<SemesterCreateReq, Semester>();
         CreateMap<SemesterUpdateReq, Semester>();
 
+        CreateMap<SubjectCreateReq, Subject>();
+        CreateMap<SubjectUpdateReq, Subject>();
+
 
 
     }
