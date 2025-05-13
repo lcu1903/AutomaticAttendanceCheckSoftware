@@ -22,7 +22,7 @@ public class ApplicationUser : IdentityUser
     public string? LastName { get; set; }
 
     override public string? PhoneNumber { get; set; }
-    override public string Email { get; set; } = null!;
+    override public string? Email { get; set; }
 
     public DateTime? BirthdayValue { get; set; }
     public bool IsActive { get; set; }
@@ -35,8 +35,8 @@ public class ApplicationUser : IdentityUser
     public string? PositionId { get; set; }
     public virtual SystemPosition? Position { get; set; }
     public virtual SystemDepartment? Department { get; set; }
+    public virtual Class? Class { get; set; }
     public virtual Student? Student { get; set; }
     public virtual Teacher? Teacher { get; set; }
-
 
 }

@@ -11,5 +11,6 @@ public interface IUserService : IDomainService
     Task<bool> DeleteUserAsync(string userId);
     Task<bool> DeleteRangeUserAsync(List<string> userIds);
 
+
 }
 

@@ -20,6 +20,7 @@ public partial class ApplicationDbContext
     public virtual DbSet<SubjectScheduleStudent> SubjectScheduleStudents { get; set; }
 
     public virtual DbSet<Teacher> Teachers { get; set; }
+    public virtual DbSet<Class> Classes { get; set; }
 
     public static void AacsOnModelCreating(ModelBuilder modelBuilder)
     {
@@ -52,8 +53,8 @@ public partial class ApplicationDbContext
             entity.Property(e => e.CreateDate).HasPrecision(6);
             entity.Property(e => e.CreatedUserId).HasMaxLength(128);
             entity.Property(e => e.DepartmentId).HasMaxLength(128);
-            entity.Property(e => e.SchoolYearEnd).HasMaxLength(50);
-            entity.Property(e => e.SchoolYearStart).HasMaxLength(50);
+            entity.Property(e => e.SchoolYearEnd).HasPrecision(6);
+            entity.Property(e => e.SchoolYearStart).HasPrecision(6);
             entity.Property(e => e.UpdateDate).HasPrecision(6);
             entity.Property(e => e.UpdatedUserId).HasMaxLength(128);
 
@@ -110,7 +111,7 @@ public partial class ApplicationDbContext
             entity.Property(e => e.UpdatedUserId).HasMaxLength(128);
         });
 
-        modelBuilder.Entity<SubjectSchedule>((Action<Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<SubjectSchedule>>)(entity =>
+        modelBuilder.Entity<SubjectSchedule>(entity =>
         {
             entity.HasKey(e => e.SubjectScheduleId).HasName("SubjectSchedules_pkey");
 
@@ -122,16 +123,16 @@ public partial class ApplicationDbContext
 
             entity.Property(e => e.SubjectScheduleId).HasMaxLength(128);
             entity.Property(e => e.CreateDate).HasPrecision(6);
-            entity.Property((System.Linq.Expressions.Expression<Func<SubjectSchedule, string?>>)(e => e.CreatedUserId)).HasMaxLength(128);
+            entity.Property(e => e.CreatedUserId).HasMaxLength(128);
             entity.Property(e => e.EndDate).HasPrecision(6);
-            entity.Property((System.Linq.Expressions.Expression<Func<SubjectSchedule, string?>>)(e => e.RoomNumber)).HasMaxLength(10);
+            entity.Property(e => e.RoomNumber).HasMaxLength(10);
             entity.Property(e => e.SemesterId).HasMaxLength(128);
             entity.Property(e => e.StartDate).HasPrecision(6);
-            entity.Property((System.Linq.Expressions.Expression<Func<SubjectSchedule, string?>>)(e => e.SubjectId)).HasMaxLength(128);
-            entity.Property((System.Linq.Expressions.Expression<Func<SubjectSchedule, string?>>)(e => e.TeacherId)).HasMaxLength(128);
-            entity.Property((System.Linq.Expressions.Expression<Func<SubjectSchedule, string?>>)(e => (string)e.TeachingAssistant)).HasMaxLength(128);
+            entity.Property(e => e.SubjectId).HasMaxLength(128);
+            entity.Property(e => e.TeacherId).HasMaxLength(128);
+            entity.Property(e => e.TeachingAssistant).HasMaxLength(128);
             entity.Property(e => e.UpdateDate).HasPrecision(6);
-            entity.Property((System.Linq.Expressions.Expression<Func<SubjectSchedule, string?>>)(e => e.UpdatedUserId)).HasMaxLength(128);
+            entity.Property(e => e.UpdatedUserId).HasMaxLength(128);
 
             entity.HasOne(d => d.Semester).WithMany(p => p.SubjectSchedules)
                 .HasForeignKey(d => d.SemesterId)
@@ -146,10 +147,10 @@ public partial class ApplicationDbContext
                 .HasForeignKey(d => d.TeacherId)
                 .HasConstraintName("SubjectSchedules_TeacherId_fkey");
 
-            entity.HasOne((System.Linq.Expressions.Expression<Func<SubjectSchedule, Teacher?>>?)(d => (Teacher?)d.TeachingAssistant)).WithMany(p => p.SubjectScheduleTeachingAssistant)
-                .HasForeignKey((System.Linq.Expressions.Expression<Func<SubjectSchedule, object?>>)(d => (object?)d.TeachingAssistant))
+            entity.HasOne(d => d.TeachingAssistantNavigation).WithMany(p => p.SubjectScheduleTeachingAssistant)
+                .HasForeignKey(d => d.TeachingAssistant)
                 .HasConstraintName("SubjectSchedules_TeachingAssistant_fkey");
-        }));
+        });
 
         modelBuilder.Entity<SubjectScheduleDetail>(entity =>
         {

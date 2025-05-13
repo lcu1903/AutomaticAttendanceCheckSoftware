@@ -11,6 +11,7 @@ public partial class Teacher : EntityAudit
     public string TeacherCode { get; set; } = null!;
 
     public string? UserId { get; set; }
+    public virtual ApplicationUser? User { get; set; }
 
     public virtual ICollection<SubjectSchedule> SubjectScheduleTeachers { get; set; } = new List<SubjectSchedule>();
 

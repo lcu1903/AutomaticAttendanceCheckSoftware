@@ -1,8 +1,7 @@
-﻿using Infrastructure.Models;
+using DataAccess.Models;
 
-namespace DataAccess.Models;
-
-public partial class Class : EntityAudit
+namespace AACS.Models;
+public class ClassUpdateReq
 {
     public string ClassId { get; set; } = null!;
 
@@ -17,8 +16,4 @@ public partial class Class : EntityAudit
     public string? HeadTeacherId { get; set; }
     public string? Room { get; set; }
 
-    public virtual SystemDepartment? Department { get; set; }
-
-    public virtual ICollection<Student> Students { get; set; } = new List<Student>();
-    public virtual ApplicationUser? HeadTeacher { get; set; }
 }

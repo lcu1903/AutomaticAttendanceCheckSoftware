@@ -2,7 +2,7 @@
 using AutoMapper;
 using DataAccess.Models;
 
-namespace Lottery.Mapper;
+namespace System.Mapper;
 
 public class ViewToDomainMappingProfile : Profile
 {

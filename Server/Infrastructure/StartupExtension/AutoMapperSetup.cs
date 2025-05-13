@@ -1,6 +1,7 @@
 
 
-using Lottery.Mapper;
+using System.Mapper;
+using AACS.Mapper;
 
 namespace StartupExtensions;
 
@@ -10,6 +11,8 @@ public static class AutoMapperSetup
     {
 
         services.AddAutoMapper(SystemMapperConfig.RegisterMappings());
+        services.AddAutoMapper(AACSMapperConfig.RegisterMappings());
+
 
     }
 }

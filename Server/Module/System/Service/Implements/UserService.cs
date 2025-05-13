@@ -1,6 +1,7 @@
 using System.Models;
 using System.Repository.Interface;
 using System.Service.Interface;
+using AACS.Repository.Interface;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Core.Bus;
@@ -94,14 +95,7 @@ public class UserService : DomainService, IUserService
         var result = _userManager.UpdateAsync(user);
         if (result.Result.Succeeded)
         {
-            if (user.Student != null)
-            {
-                await _studentRepo.DeleteStudentAsync(userId);
-            }
-            if (user.Teacher != null)
-            {
-                await _teacherRepo.DeleteTeacherAsync(userId);
-            }
+
             Commit();
             return true;
         }
@@ -139,6 +133,7 @@ public class UserService : DomainService, IUserService
         user.DepartmentId = req.DepartmentId;
         user.PositionId = req.PositionId;
         user.BirthdayValue = req.Birthdate;
+        user.ImageUrl = req.ImageUrl;
         var result = await _userManager.UpdateAsync(user);
         if (result.Succeeded)
         {
@@ -172,11 +167,13 @@ public class UserService : DomainService, IUserService
         {
             user.IsDelete = true;
             user.IsActive = false;
-            if (user.Student != null)
+            var student = await _studentRepo.GetAll().FirstOrDefaultAsync(e => e.UserId == user.Id);
+            if (student != null)
             {
                 await _studentRepo.DeleteStudentAsync(user.Id);
             }
-            if (user.Teacher != null)
+            var teacher = await _teacherRepo.GetAll().FirstOrDefaultAsync(e => e.UserId == user.Id);
+            if (teacher != null)
             {
                 await _teacherRepo.DeleteTeacherAsync(user.Id);
             }
@@ -189,4 +186,5 @@ public class UserService : DomainService, IUserService
         }
         return true;
     }
+
 }

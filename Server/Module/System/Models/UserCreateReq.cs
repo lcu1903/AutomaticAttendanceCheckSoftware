@@ -11,5 +11,6 @@ public class UserCreateReq
     public string? StudentCode { get; set; }
     public string? TeacherCode { get; set; }
     public string? ClassId { get; set; }
+    public string? ImageUrl { get; set; }
     public DateTime? Birthdate { get; set; }
 }

@@ -1,12 +1,12 @@
 using System.Models;
-using System.Repository.Interface;
+using AACS.Repository.Interface;
 using Core.Bus;
 using Core.Repository;
 using DataAccess.Contexts;
 using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace System.Repository.Implements;
+namespace AACS.Repository.Implements;
 public class TeacherRepo : Repository<Teacher>, ITeacherRepo
 {
 

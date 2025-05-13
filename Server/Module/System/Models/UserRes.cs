@@ -13,7 +13,9 @@ public class UserRes
     public string? PositionId { get; set; }
     public string? PositionName { get; set; }
     public string? StudentCode { get; set; }
+    public string? StudentId { get; set; }
     public string? TeacherCode { get; set; }
+    public string? TeacherId { get; set; }
     public string? ClassId { get; set; }
     public string? ClassName { get; set; }
     public DateTime? Birthdate { get; set; }

@@ -3,7 +3,7 @@ using System.Models;
 using Core.Interfaces;
 using DataAccess.Models;
 
-namespace System.Repository.Interface;
+namespace AACS.Repository.Interface;
 
 public interface ITeacherRepo : IRepository<Teacher>
 {

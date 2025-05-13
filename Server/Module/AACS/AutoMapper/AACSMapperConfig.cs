@@ -1,10 +1,10 @@
-﻿namespace System.Mapper;
+﻿namespace AACS.Mapper;
 
-public static class SystemMapperConfig
+public static class AACSMapperConfig
 {
     public static Type[] RegisterMappings()
     {
-        return new[]    
+        return new[]
         {
             typeof(DomainToViewMappingProfile),
             typeof(ViewToDomainMappingProfile),

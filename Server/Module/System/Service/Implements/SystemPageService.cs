@@ -37,6 +37,10 @@ public class SystemPageService : DomainService, ISystemPageService
     {
         var systemPage = _mapper.Map<SystemPage>(req);
         systemPage.PageId = Guid.NewGuid().ToString();
+        if (req.ParentId == "root")
+        {
+            systemPage.ParentId = null;
+        }
         _systemPageRepo.Add(systemPage);
         var isSuccess = Commit();
         if (isSuccess)
@@ -106,6 +110,10 @@ public class SystemPageService : DomainService, ISystemPageService
         systemPage.PageUrl = req.PageUrl;
         systemPage.PageIcon = req.PageIcon;
         systemPage.PageOrder = req.PageOrder;
+        if (req.ParentId == "root")
+        {
+            systemPage.ParentId = null;
+        }
         var isSuccess = Commit();
         if (isSuccess)
         {

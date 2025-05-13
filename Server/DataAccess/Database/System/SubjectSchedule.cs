@@ -34,5 +34,5 @@ public partial class SubjectSchedule : EntityAudit
 
     public virtual Teacher? Teacher { get; set; }
 
-    public virtual Teacher? TeachingAssistant { get; set; }
+    public virtual Teacher? TeachingAssistantNavigation { get; set; }
 }

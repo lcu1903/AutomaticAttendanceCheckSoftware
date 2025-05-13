@@ -67,4 +67,5 @@ public class UserController : ApiController
         var res = await _userService.DeleteRangeUserAsync(userIds);
         return Response(res);
     }
+
 }
