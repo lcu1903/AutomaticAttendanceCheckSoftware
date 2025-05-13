@@ -61,14 +61,6 @@ public class UserService : DomainService, IUserService
     {
         var user = _mapper.Map<ApplicationUser>(req);
         user.Id = Guid.NewGuid().ToString();
-        if (req.StudentCode != null)
-        {
-            await _studentRepo.AddStudentAsync(req, user.Id);
-        }
-        if (req.TeacherCode != null)
-        {
-            await _teacherRepo.AddTeacherAsync(req, user.Id);
-        }
         var result = await _userManager.CreateAsync(user, "123456");
         if (result.Succeeded)
         {
@@ -91,9 +83,8 @@ public class UserService : DomainService, IUserService
         {
             return false;
         }
-        user.IsDelete = true;
-        var result = _userManager.UpdateAsync(user);
-        if (result.Result.Succeeded)
+        var result = await _userManager.DeleteAsync(user);
+        if (result.Succeeded)
         {
 
             Commit();
@@ -137,14 +128,6 @@ public class UserService : DomainService, IUserService
         var result = await _userManager.UpdateAsync(user);
         if (result.Succeeded)
         {
-            if (req.StudentCode != null)
-            {
-                await _studentRepo.UpdateStudentAsync(req, user.Id);
-            }
-            if (req.TeacherCode != null)
-            {
-                await _teacherRepo.UpdateTeacherAsync(req, user.Id);
-            }
             Commit();
             return await _userManager.Users.Where(e => e.Id == user.Id).ProjectTo<UserRes>(_mapper.ConfigurationProvider).FirstAsync();
         }
@@ -165,18 +148,7 @@ public class UserService : DomainService, IUserService
         }
         foreach (var user in users)
         {
-            user.IsDelete = true;
-            user.IsActive = false;
-            var student = await _studentRepo.GetAll().FirstOrDefaultAsync(e => e.UserId == user.Id);
-            if (student != null)
-            {
-                await _studentRepo.DeleteStudentAsync(user.Id);
-            }
-            var teacher = await _teacherRepo.GetAll().FirstOrDefaultAsync(e => e.UserId == user.Id);
-            if (teacher != null)
-            {
-                await _teacherRepo.DeleteTeacherAsync(user.Id);
-            }
+            await _userManager.DeleteAsync(user);
         }
         var isSuccess = Commit();
         if (!isSuccess)

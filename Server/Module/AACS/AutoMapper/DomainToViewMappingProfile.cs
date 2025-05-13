@@ -36,5 +36,6 @@ public class DomainToViewMappingProfile : Profile
         CreateMap<Teacher, TeacherRes>()
             .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
             ;
+        CreateMap<Semester, SemesterRes>();
     }
 }

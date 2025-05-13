@@ -23,6 +23,9 @@ public class ViewToDomainMappingProfile : Profile
         .ForMember(dest => dest.BirthdayValue, opt => opt.MapFrom(src => src.Birthdate))
         ;
 
+        CreateMap<SemesterCreateReq, Semester>();
+        CreateMap<SemesterUpdateReq, Semester>();
+
 
 
     }
