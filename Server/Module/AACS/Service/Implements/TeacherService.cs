@@ -39,7 +39,7 @@ public class TeacherService : DomainService, ITeacherService
         var isExist = await _teacherRepo.GetAll().AnyAsync(e => e.TeacherCode == req.TeacherCode);
         if (isExist)
         {
-            await _bus.RaiseEvent(new DomainNotification("error", "aacs.message.teacherCodeAlreadyExists"));
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.teacherCodeAlreadyExists"));
             return null;
         }
         var teacher = _mapper.Map<Teacher>(req);
@@ -50,7 +50,7 @@ public class TeacherService : DomainService, ITeacherService
         var isUserCreate = await _userManager.CreateAsync(user, "123456");
         if (!isUserCreate.Succeeded)
         {
-            await _bus.RaiseEvent(new DomainNotification("error", "aacs.message.teacherCreateFailed"));
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.teacherCreateFailed"));
             return null;
         }
         _teacherRepo.Add(teacher);
@@ -61,7 +61,7 @@ public class TeacherService : DomainService, ITeacherService
         }
         else
         {
-            await _bus.RaiseEvent(new DomainNotification("error", "aacs.message.teacherCreateFailed"));
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.teacherCreateFailed"));
             return null;
         }
     }

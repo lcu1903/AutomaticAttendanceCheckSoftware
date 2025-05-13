@@ -35,7 +35,7 @@ public class ClassService : DomainService, IClassService
         var isExist = await _classRoomRepo.GetAll().AnyAsync(e => e.ClassCode == req.ClassCode);
         if (isExist)
         {
-            await _bus.RaiseEvent(new DomainNotification("error", "aacs.message.classRoomCodeAlreadyExists"));
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.classRoomCodeAlreadyExists"));
             return null;
         }
         var classRoom = _mapper.Map<Class>(req);
