@@ -74,7 +74,7 @@ public class SubjectScheduleService : DomainService, ISubjectScheduleService
         }
     }
 
-    public async Task<List<SubjectScheduleRes>> GetAllAsync(string? textSearch)
+    public async Task<List<SubjectScheduleRes>> GetAllAsync(string? textSearch, List<string>? semesterIds, List<string>? classIds)
     {
         var subjectSchedules = _subjectScheduleRepo.GetAll();
         if (!string.IsNullOrEmpty(textSearch))
@@ -83,6 +83,15 @@ public class SubjectScheduleService : DomainService, ISubjectScheduleService
                                                             e.Subject.SubjectCode.ToLower().Contains(textSearch.ToLower()) ||
                                            e.SubjectScheduleCode.ToLower().Contains(textSearch.ToLower()));
         }
+        if (semesterIds != null && semesterIds.Count > 0)
+        {
+            subjectSchedules = subjectSchedules.Where(e => semesterIds.Contains(e.SemesterId));
+        }
+        if (classIds != null && classIds.Count > 0)
+        {
+            subjectSchedules = subjectSchedules.Where(e => classIds.Contains(e.ClassId));
+        }
+
         return await subjectSchedules.ProjectTo<SubjectScheduleRes>(_mapper.ConfigurationProvider).ToListAsync();
     }
 
@@ -121,6 +130,7 @@ public class SubjectScheduleService : DomainService, ISubjectScheduleService
         subjectSchedule.StartDate = req.StartDate;
         subjectSchedule.EndDate = req.EndDate;
         subjectSchedule.Note = req.Note;
+        subjectSchedule.ClassId = req.ClassId;
 
         var isSuccess = Commit();
         if (isSuccess)

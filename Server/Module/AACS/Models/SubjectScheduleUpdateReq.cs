@@ -20,6 +20,7 @@ public partial class SubjectScheduleUpdateReq
     public DateTime? EndDate { get; set; }
 
     public string? Note { get; set; }
+    public string? ClassId { get; set; }
 
     // public virtual ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
 

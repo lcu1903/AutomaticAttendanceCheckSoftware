@@ -10,6 +10,7 @@ public partial class SubjectScheduleRes
     public string SemesterId { get; set; } = null!;
 
     public string? TeacherId { get; set; }
+    public string? ClassId { get; set; }
 
     public string? TeachingAssistant { get; set; }
 
@@ -32,4 +33,5 @@ public partial class SubjectScheduleRes
     public virtual TeacherRes? Teacher { get; set; }
 
     public virtual TeacherRes? TeachingAssistantNavigation { get; set; }
+    public virtual ClassRes? Class { get; set; }
 }

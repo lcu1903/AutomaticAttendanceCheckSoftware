@@ -24,9 +24,11 @@ public class SubjectScheduleController : ApiController
     [RedisCache(cacheKeyPrefix: "subject-schedules")]
     [ProducesResponseType(typeof(ResponseModel<IEnumerable<SubjectScheduleRes>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync(
-        [FromQuery] string? textSearch)
+        [FromQuery] string? textSearch,
+        [FromQuery] List<string>? semesterIds,
+        [FromQuery] List<string>? classIds)
     {
-        var res = await _subjectScheduleService.GetAllAsync(textSearch);
+        var res = await _subjectScheduleService.GetAllAsync(textSearch, semesterIds, classIds);
         return Response(res);
     }
     [HttpGet("{subjectScheduleId}")]

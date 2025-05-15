@@ -9,6 +9,7 @@ public partial class SubjectSchedule : EntityAudit
     public string SubjectScheduleId { get; set; } = null!;
     public string SubjectScheduleCode { get; set; } = null!;
     public string? SubjectId { get; set; }
+    public string? ClassId { get; set; }
 
     public string SemesterId { get; set; } = null!;
 
@@ -35,4 +36,5 @@ public partial class SubjectSchedule : EntityAudit
     public virtual Teacher? Teacher { get; set; }
 
     public virtual Teacher? TeachingAssistantNavigation { get; set; }
+    public virtual Class? Class { get; set; }
 }

@@ -8,6 +8,7 @@ public partial class SubjectScheduleCreateReq
     public string SemesterId { get; set; } = null!;
 
     public string? TeacherId { get; set; }
+    public string? ClassId { get; set; }
 
     public string? TeachingAssistant { get; set; }
 
