@@ -79,7 +79,8 @@ public class SubjectService : DomainService, ISubjectService
         var subjects = _subjectRepo.GetAll();
         if (!string.IsNullOrEmpty(textSearch))
         {
-            subjects = subjects.Where(e => e.SubjectName.ToLower().Contains(textSearch.ToLower()));
+            subjects = subjects.Where(e => e.SubjectName.ToLower().Contains(textSearch.ToLower()) ||
+                                           e.SubjectCode.ToLower().Contains(textSearch.ToLower()));
         }
         return await subjects.ProjectTo<SubjectRes>(_mapper.ConfigurationProvider).ToListAsync();
     }
