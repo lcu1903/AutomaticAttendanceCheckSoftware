@@ -32,6 +32,8 @@ public class ViewToDomainMappingProfile : Profile
         CreateMap<SubjectScheduleCreateReq, SubjectSchedule>();
         CreateMap<SubjectScheduleUpdateReq, SubjectSchedule>();
 
+        CreateMap<SubjectScheduleDetailCreateReq, SubjectScheduleDetail>();
+
 
 
     }

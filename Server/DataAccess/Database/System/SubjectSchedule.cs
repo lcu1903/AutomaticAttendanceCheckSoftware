@@ -37,4 +37,5 @@ public partial class SubjectSchedule : EntityAudit
 
     public virtual Teacher? TeachingAssistantNavigation { get; set; }
     public virtual Class? Class { get; set; }
+    public virtual ICollection<SubjectScheduleDetail> SubjectScheduleDetails { get; set; } = new List<SubjectScheduleDetail>();
 }

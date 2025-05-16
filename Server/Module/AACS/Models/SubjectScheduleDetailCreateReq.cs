@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using Infrastructure.Models;
 
-namespace DataAccess.Models;
+namespace AACS.Models;
 
-public partial class SubjectScheduleDetail : EntityAudit
+public partial class SubjectScheduleDetailCreateReq
 {
-    public string SubjectScheduleDetailId { get; set; } = null!;
 
     public string? SubjectScheduleId { get; set; }
 
@@ -17,6 +16,5 @@ public partial class SubjectScheduleDetail : EntityAudit
     public DateTime EndTime { get; set; }
 
     public string? Note { get; set; }
-    public virtual SubjectSchedule? SubjectSchedule { get; set; } = null!;
 
 }

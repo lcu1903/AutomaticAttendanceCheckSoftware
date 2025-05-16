@@ -44,7 +44,11 @@ public class DomainToViewMappingProfile : Profile
             .ForMember(dest => dest.Subject, opt => opt.MapFrom(src => src.Subject))
             .ForMember(dest => dest.Semester, opt => opt.MapFrom(src => src.Semester))
             .ForMember(dest => dest.Teacher, opt => opt.MapFrom(src => src.Teacher))
-            .ForMember(dest => dest.TeachingAssistantNavigation, opt => opt.MapFrom(src => src.TeachingAssistantNavigation));
-            
+            .ForMember(dest => dest.TeachingAssistantNavigation, opt => opt.MapFrom(src => src.TeachingAssistantNavigation))
+            .ForMember(dest => dest.Class, opt => opt.MapFrom(src => src.Class))
+            .ForMember(dest => dest.SubjectScheduleDetails, opt => opt.MapFrom(src => src.SubjectScheduleDetails.OrderBy(x => x.ScheduleDate)))
+            ;
+        CreateMap<SubjectScheduleDetail, SubjectScheduleDetailRes>();
+
     }
 }

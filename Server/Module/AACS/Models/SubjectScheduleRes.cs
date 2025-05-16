@@ -34,4 +34,5 @@ public partial class SubjectScheduleRes
 
     public virtual TeacherRes? TeachingAssistantNavigation { get; set; }
     public virtual ClassRes? Class { get; set; }
+    public virtual ICollection<SubjectScheduleDetailRes> SubjectScheduleDetails { get; set; } = new List<SubjectScheduleDetailRes>();
 }

@@ -12,6 +12,7 @@ using AACS.Repository.Interface;
 using AACS.Models;
 
 namespace AACS.Service.Implements;
+
 public class SubjectScheduleService : DomainService, ISubjectScheduleService
 {
     private readonly IMediatorHandler _bus;
@@ -164,6 +165,137 @@ public class SubjectScheduleService : DomainService, ISubjectScheduleService
         {
             await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.subjectScheduleDeleteFailed"));
             return false;
+        }
+    }
+
+    public async Task<List<SubjectScheduleDetailRes>>? AddDetailAsync(string subjectScheduleId, SubjectScheduleDetailCreateReq req)
+    {
+        var subjectSchedule = await _subjectScheduleRepo.GetAll().FirstOrDefaultAsync(e => e.SubjectScheduleId == subjectScheduleId);
+        if (subjectSchedule is null)
+        {
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.subjectScheduleNotFound"));
+            return null;
+        }
+        var subjectScheduleDetail = _mapper.Map<SubjectScheduleDetail>(req);
+        subjectScheduleDetail.SubjectScheduleDetailId = Guid.NewGuid().ToString();
+        subjectScheduleDetail.SubjectScheduleId = subjectScheduleId;
+        subjectSchedule.SubjectScheduleDetails.Add(subjectScheduleDetail);
+        var isSuccess = Commit();
+        if (isSuccess)
+        {
+            return await _subjectScheduleRepo.GetByDetailIdAsync(subjectScheduleId)
+                .ProjectTo<SubjectScheduleDetailRes>(_mapper.ConfigurationProvider).ToListAsync();
+        }
+        else
+        {
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.subjectScheduleCreateFailed"));
+            return null;
+        }
+    }
+
+    public async Task<List<SubjectScheduleDetailRes>> ChangeSubjectScheduleAsync(SubjectScheduleDetailChangeScheduleReq req)
+    {
+        var subjectSchedule = await _subjectScheduleRepo.GetAll().FirstOrDefaultAsync(e => e.SubjectScheduleId == req.SubjectScheduleId);
+        if (subjectSchedule.StartDate <= DateTime.UtcNow)
+        {
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.subjectStarted"));
+            return null;
+        }
+        if (subjectSchedule.SubjectScheduleDetails.Any())
+        {
+            subjectSchedule.SubjectScheduleDetails.Clear();
+        }
+        var details = new List<SubjectScheduleDetail>();
+        if (subjectSchedule.StartDate.HasValue && subjectSchedule.EndDate.HasValue)
+        {
+            var startDate = subjectSchedule.StartDate.Value.Date;
+            var endDate = subjectSchedule.EndDate.Value.Date;
+
+            for (var date = startDate; date <= endDate; date = date.AddDays(1))
+            {
+                // Check if this date's DayOfWeek matches any selected day in ListScheduleDate
+                if (req.ListScheduleDate.Any(d => d.DayOfWeek == date.DayOfWeek))
+                {
+                    var subjectScheduleDetail = new SubjectScheduleDetail
+                    {
+                        SubjectScheduleDetailId = Guid.NewGuid().ToString(),
+                        SubjectScheduleId = req.SubjectScheduleId,
+                        ScheduleDate = date,
+                        StartTime = req.StartTime,
+                        EndTime = req.EndTime,
+                        Note = null
+                    };
+                    details.Add(subjectScheduleDetail);
+                }
+            }
+            subjectSchedule.SubjectScheduleDetails = details;
+        }
+
+
+
+        var isSuccess = Commit();
+        if (isSuccess)
+        {
+            return await _subjectScheduleRepo.GetByDetailIdAsync(req.SubjectScheduleId)
+                .ProjectTo<SubjectScheduleDetailRes>(_mapper.ConfigurationProvider).ToListAsync(); ;
+        }
+        else
+        {
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.subjectScheduleCreateFailed"));
+            return null;
+        }
+    }
+
+    public async Task<bool> DeleteDetailAsync(string subjectScheduleDetailId, string subjectScheduleId)
+    {
+        var subjectScheduleDetail = await _subjectScheduleRepo.GetByDetailIdAsync(subjectScheduleId).FirstOrDefaultAsync(e => e.SubjectScheduleDetailId == subjectScheduleDetailId);
+        if (subjectScheduleDetail is null)
+        {
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.subjectScheduleDetailNotFound"));
+            return false;
+        }
+        await _subjectScheduleRepo.DeleteDetailAsync(subjectScheduleDetailId);
+        var isSuccess = Commit();
+        if (isSuccess)
+        {
+            return true;
+        }
+        else
+        {
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.subjectScheduleDeleteFailed"));
+            return false;
+        }
+    }
+
+    public async Task<SubjectScheduleDetailRes?> UpdateDetail(string subjectScheduleId, SubjectScheduleDetailUpdateReq req)
+    {
+        var subjectScheduleDetail = await _subjectScheduleRepo.GetByDetailIdAsync(subjectScheduleId).FirstOrDefaultAsync(e => e.SubjectScheduleDetailId == req.SubjectScheduleDetailId);
+        if (subjectScheduleDetail is null)
+        {
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.subjectScheduleDetailNotFound"));
+            return null;
+        }
+        if (subjectScheduleDetail.ScheduleDate < DateTime.UtcNow)
+        {
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.scheduleStarted"));
+            return null;
+        }
+        subjectScheduleDetail.SubjectScheduleId = subjectScheduleId;
+        subjectScheduleDetail.ScheduleDate = req.ScheduleDate;
+        subjectScheduleDetail.StartTime = req.StartTime;
+        subjectScheduleDetail.EndTime = req.EndTime;
+        subjectScheduleDetail.Note = req.Note;
+
+        var isSuccess = Commit();
+        if (isSuccess)
+        {
+            return await _subjectScheduleRepo.GetByDetailIdAsync(subjectScheduleId)
+                .ProjectTo<SubjectScheduleDetailRes>(_mapper.ConfigurationProvider).FirstOrDefaultAsync(e => e.SubjectScheduleDetailId == req.SubjectScheduleDetailId);
+        }
+        else
+        {
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.subjectScheduleUpdateFailed"));
+            return null;
         }
     }
 }

@@ -9,6 +9,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AACS.Controller;
+
 [Route("api/subject-schedules")]
 public class SubjectScheduleController : ApiController
 {
@@ -68,6 +69,39 @@ public class SubjectScheduleController : ApiController
     public async Task<IActionResult> DeleteRangeSubjectScheduleAsync([FromBody] List<string> ids)
     {
         var res = await _subjectScheduleService.DeleteRangeAsync(ids);
+        return Response(res);
+    }
+    [HttpPut("{subjectScheduleId}/change-schedule")]
+    [RedisCache(invalidatePatterns: "subject-schedules")]
+    [ProducesResponseType(typeof(ResponseModel<List<SubjectScheduleDetailRes>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ChangeScheduleAsync([FromBody] SubjectScheduleDetailChangeScheduleReq req)
+    {
+        var res = await _subjectScheduleService.ChangeSubjectScheduleAsync(req);
+        return Response(res);
+    }
+    [HttpPost("{subjectScheduleId}/add-detail")]
+    [RedisCache(invalidatePatterns: "subject-schedules")]
+    [ProducesResponseType(typeof(ResponseModel<List<SubjectScheduleDetailRes>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> AddDetailAsync([FromBody] SubjectScheduleDetailCreateReq req, string subjectScheduleId)
+    {
+
+        var res = await _subjectScheduleService.AddDetailAsync(subjectScheduleId, req);
+        return Response(res);
+    }
+    [HttpDelete("{subjectScheduleId}/detail/{subjectScheduleDetailId}")]
+    [RedisCache(invalidatePatterns: "subject-schedules")]
+    [ProducesResponseType(typeof(ResponseModel<bool>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> DeleteSubjectScheduleDetailAsync(string subjectScheduleDetailId, string subjectScheduleId)
+    {
+        var res = await _subjectScheduleService.DeleteDetailAsync(subjectScheduleDetailId, subjectScheduleId);
+        return Response(res);
+    }
+    [HttpPut("{subjectScheduleId}/detail/{subjectScheduleDetailId}")]
+    [RedisCache(invalidatePatterns: "subject-schedules")]
+    [ProducesResponseType(typeof(ResponseModel<SubjectScheduleDetailRes?>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> UpdateSubjectScheduleDetailAsync(string subjectScheduleId, [FromBody] SubjectScheduleDetailUpdateReq req)
+    {
+        var res = await _subjectScheduleService.UpdateDetail(subjectScheduleId, req);
         return Response(res);
     }
 }
