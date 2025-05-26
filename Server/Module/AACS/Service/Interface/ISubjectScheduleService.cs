@@ -15,5 +15,6 @@ public interface ISubjectScheduleService : IDomainService
     Task<SubjectScheduleDetailRes?> UpdateDetail(string subjectScheduleId, SubjectScheduleDetailUpdateReq req);
     Task<List<SubjectScheduleDetailRes>> ChangeSubjectScheduleAsync(SubjectScheduleDetailChangeScheduleReq req);
     Task<bool> DeleteDetailAsync(string subjectScheduleDetailId, string subjectScheduleId);
+    Task<bool> RemoveStudentsFromScheduleAsync(string subjectScheduleId, List<string> studentIds);
 }
 

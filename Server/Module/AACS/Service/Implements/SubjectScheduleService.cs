@@ -33,10 +33,12 @@ public class SubjectScheduleService : DomainService, ISubjectScheduleService
 
     public async Task<SubjectScheduleRes?> AddAsync(SubjectScheduleCreateReq req)
     {
-        var isExist = await _subjectScheduleRepo.GetAll().AnyAsync(e => e.SubjectScheduleCode == req.SubjectScheduleCode);
+        var isExist = await _subjectScheduleRepo.GetAll().AnyAsync(e => e.SubjectScheduleCode == req.SubjectScheduleCode || (e.SubjectId == req.SubjectId &&
+                                                                                  e.SemesterId == req.SemesterId &&
+                                                                                  e.ClassId == req.ClassId));
         if (isExist)
         {
-            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.subjectScheduleCodeAlreadyExists"));
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.subjectScheduleAlreadyExists"));
             return null;
         }
         var subjectSchedule = _mapper.Map<SubjectSchedule>(req);
@@ -109,10 +111,12 @@ public class SubjectScheduleService : DomainService, ISubjectScheduleService
 
     public async Task<SubjectScheduleRes?> UpdateAsync(string subjectScheduleId, SubjectScheduleUpdateReq req)
     {
-        var isExist = await _subjectScheduleRepo.GetAll().AnyAsync(e => e.SubjectScheduleCode == req.SubjectScheduleCode && e.SubjectScheduleId != subjectScheduleId);
+        var isExist = await _subjectScheduleRepo.GetAll().AnyAsync(e =>
+            (e.SubjectScheduleCode == req.SubjectScheduleCode ||
+            (e.SubjectId == req.SubjectId && e.SemesterId == req.SemesterId && e.ClassId == req.ClassId)) && e.SubjectScheduleId != subjectScheduleId);
         if (isExist)
         {
-            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.subjectScheduleCodeAlreadyExists"));
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.subjectScheduleAlreadyExists"));
             return null;
         }
         var subjectSchedule = await _subjectScheduleRepo.GetAll().FirstOrDefaultAsync(e => e.SubjectScheduleId == subjectScheduleId);
@@ -297,6 +301,36 @@ public class SubjectScheduleService : DomainService, ISubjectScheduleService
         {
             await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.subjectScheduleUpdateFailed"));
             return null;
+        }
+    }
+
+    public async Task<bool> RemoveStudentsFromScheduleAsync(string subjectScheduleId, List<string> studentIds)
+    {
+        var subjectSchedule = await _subjectScheduleRepo.GetAll().Include(e => e.SubjectScheduleStudents).FirstOrDefaultAsync(e => e.SubjectScheduleId == subjectScheduleId);
+        if (subjectSchedule is null)
+        {
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.subjectScheduleNotFound"));
+            return false;
+        }
+        var studentsToRemove = subjectSchedule.SubjectScheduleStudents.Where(s => studentIds.Contains(s.StudentId)).ToList();
+        if (studentsToRemove.Count == 0)
+        {
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.studentsNotFoundInSchedule"));
+            return false;
+        }
+        foreach (var student in studentsToRemove)
+        {
+            subjectSchedule.SubjectScheduleStudents.Remove(student);
+        }
+        var isSuccess = Commit();
+        if (isSuccess)
+        {
+            return true;
+        }
+        else
+        {
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.removeStudentsFailed"));
+            return false;
         }
     }
 }

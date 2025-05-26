@@ -13,7 +13,7 @@ public partial class SubjectScheduleStudentRes
     public string? StudentId { get; set; }
 
 
-    public virtual StudentRes? Student { get; set; }
+    // public virtual StudentRes? Student { get; set; }
 
-    public virtual SubjectScheduleRes? SubjectSchedule { get; set; }
+    // public virtual SubjectScheduleRes? SubjectSchedule { get; set; }
 }

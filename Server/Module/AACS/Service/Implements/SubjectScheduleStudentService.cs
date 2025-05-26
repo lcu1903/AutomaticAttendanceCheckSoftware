@@ -105,13 +105,13 @@ public class SubjectScheduleStudentService : DomainService, ISubjectScheduleStud
 
     public async Task<bool> DeleteRangeAsync(List<string> ids)
     {
-        var classIds = await _subjectScheduleStudentRepo.GetAll().Where(e => ids.Contains(e.SubjectScheduleStudentId)).Select(e => e.SubjectScheduleStudentId).ToListAsync();
-        if (classIds is null || classIds.Count == 0)
+        var subjectScheduleStudentIds = await _subjectScheduleStudentRepo.GetAll().Where(e => ids.Contains(e.SubjectScheduleStudentId)).Select(e => e.SubjectScheduleStudentId).ToListAsync();
+        if (subjectScheduleStudentIds is null || subjectScheduleStudentIds.Count == 0)
         {
             await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.subjectScheduleStudentNotFound"));
             return false;
         }
-        foreach (var id in classIds)
+        foreach (var id in subjectScheduleStudentIds)
         {
             _subjectScheduleStudentRepo.Remove(id);
         }

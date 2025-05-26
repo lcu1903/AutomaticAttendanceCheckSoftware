@@ -104,4 +104,12 @@ public class SubjectScheduleController : ApiController
         var res = await _subjectScheduleService.UpdateDetail(subjectScheduleId, req);
         return Response(res);
     }
+    [HttpDelete("{subjectScheduleId}/remove-students")]
+    [RedisCache(invalidatePatterns: "subject-schedules")]
+    [ProducesResponseType(typeof(ResponseModel<bool>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> RemoveStudentsFromScheduleAsync(string subjectScheduleId, [FromBody] List<string> studentIds)
+    {
+        var res = await _subjectScheduleService.RemoveStudentsFromScheduleAsync(subjectScheduleId, studentIds);
+        return Response(res);
+    }
 }
