@@ -9,6 +9,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AACS.Controller;
+
 [Route("api/students")]
 public class StudentController : ApiController
 {
@@ -24,9 +25,9 @@ public class StudentController : ApiController
     [RedisCache(cacheKeyPrefix: "users/students")]
     [ProducesResponseType(typeof(ResponseModel<IEnumerable<StudentRes>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync(
-        [FromQuery] string? textSearch, [FromQuery] List<string>? departmentIds, [FromQuery] List<string>? positionIds)
+        [FromQuery] string? textSearch, [FromQuery] List<string>? departmentIds, [FromQuery] List<string>? positionIds, [FromQuery] List<string>? classIds)
     {
-        var res = await _studentService.GetAllAsync(textSearch, departmentIds, positionIds);
+        var res = await _studentService.GetAllAsync(textSearch, departmentIds, positionIds, classIds);
         return Response(res);
     }
     [HttpGet("{studentId}")]
@@ -66,6 +67,13 @@ public class StudentController : ApiController
     public async Task<IActionResult> DeleteRangeStudentAsync([FromBody] List<string> ids)
     {
         var res = await _studentService.DeleteRangeAsync(ids);
+        return Response(res);
+    }
+    [HttpGet("user/{userId}")]
+    [ProducesResponseType(typeof(ResponseModel<StudentRes?>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetStudentByUserIdAsync(string userId)
+    {
+        var res = await _studentService.GetByUserIdAsync(userId);
         return Response(res);
     }
 }

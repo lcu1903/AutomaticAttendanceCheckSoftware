@@ -41,14 +41,22 @@ public class DomainToViewMappingProfile : Profile
         CreateMap<Subject, SubjectRes>()
             ;
         CreateMap<SubjectSchedule, SubjectScheduleRes>()
-            .ForMember(dest => dest.Subject, opt => opt.MapFrom(src => src.Subject))
-            .ForMember(dest => dest.Semester, opt => opt.MapFrom(src => src.Semester))
-            .ForMember(dest => dest.Teacher, opt => opt.MapFrom(src => src.Teacher))
-            .ForMember(dest => dest.TeachingAssistantNavigation, opt => opt.MapFrom(src => src.TeachingAssistantNavigation))
-            .ForMember(dest => dest.Class, opt => opt.MapFrom(src => src.Class))
+            .ForMember(dest => dest.SubjectName, opt => opt.MapFrom(src => src.Subject.SubjectName))
+            .ForMember(dest => dest.SubjectCode, opt => opt.MapFrom(src => src.Subject.SubjectCode))
+            .ForMember(dest => dest.SemesterName, opt => opt.MapFrom(src => src.Semester.SemesterName))
+            .ForMember(dest => dest.TeacherName, opt => opt.MapFrom(src => src.Teacher.User.FullName))
+            .ForMember(dest => dest.TeacherCode, opt => opt.MapFrom(src => src.Teacher.TeacherCode))
+            .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.Class.ClassName))
+            .ForMember(dest => dest.ClassCode, opt => opt.MapFrom(src => src.Class.ClassCode))
+            .ForMember(dest => dest.TeachingAssistantName, opt => opt.MapFrom(src => src.TeachingAssistantNavigation.User.FullName))
+            .ForMember(dest => dest.TeachingAssistantCode, opt => opt.MapFrom(src => src.TeachingAssistantNavigation.TeacherCode))
+            .ForMember(dest => dest.Students, opt => opt.MapFrom(src => src.SubjectScheduleStudents.Select(x => x.Student)))
+
             .ForMember(dest => dest.SubjectScheduleDetails, opt => opt.MapFrom(src => src.SubjectScheduleDetails.OrderBy(x => x.ScheduleDate)))
             ;
         CreateMap<SubjectScheduleDetail, SubjectScheduleDetailRes>();
+        CreateMap<SubjectScheduleStudent, SubjectScheduleStudentRes>()
+            ;
 
     }
 }

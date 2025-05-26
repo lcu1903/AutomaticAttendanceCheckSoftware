@@ -7,4 +7,5 @@ public interface ISubjectScheduleRepo : IRepository<SubjectSchedule>
 {
     IQueryable<SubjectScheduleDetail?> GetByDetailIdAsync(string id);
     Task<bool> DeleteDetailAsync(string detailId);
+    Task<bool> RemoveRangeDetailAsync(IEnumerable<SubjectScheduleDetail> details);
 }

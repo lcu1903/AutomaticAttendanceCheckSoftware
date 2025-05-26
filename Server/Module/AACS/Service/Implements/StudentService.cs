@@ -13,6 +13,7 @@ using AACS.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace AACS.Service.Implements;
+
 public class StudentService : DomainService, IStudentService
 {
     private readonly UserManager<ApplicationUser> _userManager;
@@ -99,9 +100,13 @@ public class StudentService : DomainService, IStudentService
         }
     }
 
-    public async Task<List<StudentRes>> GetAllAsync(string? textSearch, List<string>? departmentIds, List<string>? positionIds)
+    public async Task<List<StudentRes>> GetAllAsync(string? textSearch, List<string>? departmentIds, List<string>? positionIds, List<string>? classIds)
     {
         var students = _studentRepo.GetAll();
+        if (classIds != null && classIds.Count > 0)
+        {
+            students = students.Where(e => classIds.Contains(e.ClassId));
+        }
         if (!string.IsNullOrEmpty(textSearch))
         {
             students = students.Where(e => e.StudentCode.ToLower().Contains(textSearch.ToLower()) || e.User.FullName.ToLower().Contains(textSearch.ToLower()));
@@ -114,6 +119,7 @@ public class StudentService : DomainService, IStudentService
         {
             students = students.Where(e => positionIds.Contains(e.User.PositionId));
         }
+
         return await students.OrderBy(e => e.StudentCode).ProjectTo<StudentRes>(_mapper.ConfigurationProvider).ToListAsync();
     }
 
@@ -211,5 +217,16 @@ public class StudentService : DomainService, IStudentService
             await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.studentDeleteFailed"));
             return false;
         }
+    }
+
+    public async Task<StudentRes?> GetByUserIdAsync(string userId)
+    {
+        var student = _studentRepo.GetAll().Where(e => e.UserId == userId);
+        if (student is null)
+        {
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.studentNotFound"));
+            return null;
+        }
+        return await student.Take(1).ProjectTo<StudentRes>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
     }
 }

@@ -93,7 +93,7 @@ public class SubjectScheduleService : DomainService, ISubjectScheduleService
             subjectSchedules = subjectSchedules.Where(e => classIds.Contains(e.ClassId));
         }
 
-        return await subjectSchedules.ProjectTo<SubjectScheduleRes>(_mapper.ConfigurationProvider).ToListAsync();
+        return await subjectSchedules.OrderByDescending(e => e.UpdateDate).ProjectTo<SubjectScheduleRes>(_mapper.ConfigurationProvider).ToListAsync();
     }
 
     public async Task<SubjectScheduleRes?> GetByIdAsync(string id)
@@ -195,7 +195,7 @@ public class SubjectScheduleService : DomainService, ISubjectScheduleService
 
     public async Task<List<SubjectScheduleDetailRes>> ChangeSubjectScheduleAsync(SubjectScheduleDetailChangeScheduleReq req)
     {
-        var subjectSchedule = await _subjectScheduleRepo.GetAll().FirstOrDefaultAsync(e => e.SubjectScheduleId == req.SubjectScheduleId);
+        var subjectSchedule = await _subjectScheduleRepo.GetAll().Include(e => e.SubjectScheduleDetails).Where(e => e.SubjectScheduleId == req.SubjectScheduleId).FirstOrDefaultAsync();
         if (subjectSchedule.StartDate <= DateTime.UtcNow)
         {
             await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.subjectStarted"));
@@ -203,13 +203,14 @@ public class SubjectScheduleService : DomainService, ISubjectScheduleService
         }
         if (subjectSchedule.SubjectScheduleDetails.Any())
         {
+            await _subjectScheduleRepo.RemoveRangeDetailAsync(subjectSchedule.SubjectScheduleDetails);
             subjectSchedule.SubjectScheduleDetails.Clear();
         }
         var details = new List<SubjectScheduleDetail>();
         if (subjectSchedule.StartDate.HasValue && subjectSchedule.EndDate.HasValue)
         {
-            var startDate = subjectSchedule.StartDate.Value.Date;
-            var endDate = subjectSchedule.EndDate.Value.Date;
+            var startDate = subjectSchedule.StartDate.Value;
+            var endDate = subjectSchedule.EndDate.Value;
 
             for (var date = startDate; date <= endDate; date = date.AddDays(1))
             {

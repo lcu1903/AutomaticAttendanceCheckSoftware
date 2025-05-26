@@ -33,4 +33,9 @@ public class SubjectScheduleRepo : Repository<SubjectSchedule>, ISubjectSchedule
         var result = _context.SubjectScheduleDetails.Where(e => e.SubjectScheduleId == id);
         return result;
     }
+    public async Task<bool> RemoveRangeDetailAsync(IEnumerable<SubjectScheduleDetail> details)
+    {
+        _context.SubjectScheduleDetails.RemoveRange(details);
+        return true;
+    }
 }

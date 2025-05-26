@@ -12,6 +12,7 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 namespace System.Service.Implements;
+
 public class AccountService : DomainService, IAccountService
 {
     private readonly IJwtFactory _jwtFactory;
@@ -42,7 +43,7 @@ public class AccountService : DomainService, IAccountService
 
     public async Task<UserRes?> ChangePasswordAsync(ChangePasswordReq req)
     {
-        var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == req.UserId);
+        var user = await _userManager.Users.Include(e => e.Student).ThenInclude(e => e.Class).Include(e => e.Teacher).FirstOrDefaultAsync(x => x.Id == req.UserId);
         if (user is null)
         {
             await _bus.RaiseEvent(new DomainNotification("system.error.userNotFound", "system.message.pleaseCheckAgain"));
@@ -63,6 +64,13 @@ public class AccountService : DomainService, IAccountService
                 DepartmentName = user.Department?.DepartmentName,
                 PositionName = user.Position?.PositionName,
                 ImageUrl = user.ImageUrl,
+                ClassId = user.Student?.ClassId,
+                ClassName = user.Student?.Class?.ClassName,
+                StudentCode = user.Student?.StudentCode,
+                StudentId = user.Student?.StudentId,
+                TeacherCode = user.Teacher?.TeacherCode,
+                TeacherId = user.Teacher?.TeacherId,
+                Birthdate = user.BirthdayValue,
             };
         }
         else
@@ -74,7 +82,7 @@ public class AccountService : DomainService, IAccountService
 
     public async Task<LoginRes> LoginAsync(LoginReq req)
     {
-        var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == req.UserName || x.UserName == req.UserName);
+        var user = await _userManager.Users.Include(e => e.Student).ThenInclude(e => e.Class).Include(e => e.Teacher).FirstOrDefaultAsync(x => x.Email == req.UserName || x.UserName == req.UserName);
         if (user is null)
         {
             await _bus.RaiseEvent(new DomainNotification("system.error.userNotFound", "system.message.pleaseCheckAgain"));
@@ -99,6 +107,18 @@ public class AccountService : DomainService, IAccountService
                     Email = user.Email,
                     PhoneNumber = user.PhoneNumber,
                     FullName = user.FullName,
+                    DepartmentId = user.DepartmentId,
+                    PositionId = user.PositionId,
+                    DepartmentName = user.Department?.DepartmentName,
+                    PositionName = user.Position?.PositionName,
+                    ImageUrl = user.ImageUrl,
+                    ClassId = user.Student?.ClassId,
+                    ClassName = user.Student?.Class?.ClassName,
+                    StudentCode = user.Student?.StudentCode,
+                    StudentId = user.Student?.StudentId,
+                    TeacherCode = user.Teacher?.TeacherCode,
+                    TeacherId = user.Teacher?.TeacherId,
+                    Birthdate = user.BirthdayValue,
                 }
             };
 
@@ -117,7 +137,7 @@ public class AccountService : DomainService, IAccountService
         {
             return null;
         }
-        var user = await _userManager.Users.Where(d => d.Id == currentValidExistToken.UserId)
+        var user = await _userManager.Users.Include(e => e.Student).ThenInclude(e => e.Class).Include(e => e.Teacher).Where(d => d.Id == currentValidExistToken.UserId)
             .FirstOrDefaultAsync();
         if (user is null || user.IsDelete || !user.IsActive)
         {
@@ -132,8 +152,20 @@ public class AccountService : DomainService, IAccountService
                 UserId = user.Id,
                 UserName = user.UserName,
                 Email = user.Email,
-                PhoneNumber = user?.PhoneNumber,
-                FullName = user?.FullName,
+                PhoneNumber = user.PhoneNumber,
+                FullName = user.FullName,
+                DepartmentId = user.DepartmentId,
+                PositionId = user.PositionId,
+                DepartmentName = user.Department?.DepartmentName,
+                PositionName = user.Position?.PositionName,
+                ImageUrl = user.ImageUrl,
+                ClassId = user.Student?.ClassId,
+                ClassName = user.Student?.Class.ClassName,
+                StudentCode = user.Student?.StudentCode,
+                StudentId = user.Student?.StudentId,
+                TeacherCode = user.Teacher?.TeacherCode,
+                TeacherId = user.Teacher?.TeacherId,
+                Birthdate = user.BirthdayValue,
             }
         };
 
@@ -170,6 +202,18 @@ public class AccountService : DomainService, IAccountService
                     Email = user.Email,
                     PhoneNumber = user.PhoneNumber,
                     FullName = user.FullName,
+                    DepartmentId = user.DepartmentId,
+                    PositionId = user.PositionId,
+                    DepartmentName = user.Department?.DepartmentName,
+                    PositionName = user.Position?.PositionName,
+                    ImageUrl = user.ImageUrl,
+                    ClassId = user.Student?.ClassId,
+                    ClassName = user.Student?.Class?.ClassName,
+                    StudentCode = user.Student?.StudentCode,
+                    StudentId = user.Student?.StudentId,
+                    TeacherCode = user.Teacher?.TeacherCode,
+                    TeacherId = user.Teacher?.TeacherId,
+                    Birthdate = user.BirthdayValue,
                 }
             };
         }

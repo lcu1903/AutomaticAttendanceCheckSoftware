@@ -18,14 +18,12 @@ public class DomainToViewMappingProfile : Profile
             .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src => src.Department.DepartmentName))
             .ForMember(dest => dest.PositionName, opt => opt.MapFrom(src => src.Position.PositionName))
             .ForMember(dest => dest.Birthdate, opt => opt.MapFrom(src => src.BirthdayValue))
-            .ForMember(dest => dest.ClassId, opt => opt.MapFrom(src => src.Class.ClassId))
-            .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.Class.ClassName))
+            .ForMember(dest => dest.ClassId, opt => opt.MapFrom(src => src.Student.Class.ClassId))
+            .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.Student.Class.ClassName))
             .ForMember(dest => dest.StudentCode, opt => opt.MapFrom(src => src.Student.StudentCode))
             .ForMember(dest => dest.TeacherCode, opt => opt.MapFrom(src => src.Teacher.TeacherCode))
             .ForMember(dest => dest.StudentId, opt => opt.MapFrom(src => src.Student.StudentId))
             .ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.Teacher.TeacherId))
-
-
             ;
 
 
