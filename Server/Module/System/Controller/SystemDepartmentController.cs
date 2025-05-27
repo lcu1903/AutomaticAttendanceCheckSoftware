@@ -6,10 +6,13 @@ using Core.Controller;
 using Core.Notifications;
 using Infrastructure.Models;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace System.Controller;
+
 [Route("api/system-departments")]
+[Authorize]
 public class SystemDepartmentController : ApiController
 {
     private readonly ISystemDepartmentService _systemDepartmentService;

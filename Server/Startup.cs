@@ -6,12 +6,15 @@ using Microsoft.AspNetCore.SpaServices.Extensions;
 using CrosCuttingIoC;
 using Hangfire;
 using System.Storage;
+using System.Diagnostics;
 
 
 namespace Controllers;
 
 public class Startup
 {
+    private Process? _pythonProcess;
+
     public Startup(IConfiguration configuration, IWebHostEnvironment env)
     {
         Configuration = configuration;
@@ -122,10 +125,7 @@ public class Startup
 
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-    public void Configure(IApplicationBuilder app
-    // ApplicationDbSeeder seeder,
-
-    )
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime lifetime)
     {
         // context.Database.Migrate();
         // seeder.SeedDataAndVerifyDataAsync(new CancellationToken()).GetAwaiter().GetResult();
@@ -201,6 +201,39 @@ public class Startup
             });
         });
         // ApplicationDataInitializer.Initialize(app.ApplicationServices);
+
+        // Khởi động DeepFace API server nếu chưa chạy
+        try
+        {
+            _pythonProcess = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "python",
+                    Arguments = "Module/AACS/FaceRecognition/face_compare.py",
+                    WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+            _pythonProcess.Start();
+            lifetime.ApplicationStopping.Register(() =>
+            {
+                try
+                {
+                    if (_pythonProcess != null && !_pythonProcess.HasExited)
+                    {
+                        _pythonProcess.Kill(true);
+                        _pythonProcess.Dispose();
+                    }
+                }
+                catch { /* log nếu cần */ }
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Could not start DeepFace API server: {ex.Message}");
+        }
     }
 
     private static void RegisterServices(IServiceCollection services)

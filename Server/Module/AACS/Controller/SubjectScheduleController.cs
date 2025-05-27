@@ -6,11 +6,13 @@ using Core.Controller;
 using Core.Notifications;
 using Infrastructure.Models;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AACS.Controller;
 
 [Route("api/subject-schedules")]
+[Authorize]
 public class SubjectScheduleController : ApiController
 {
     private readonly ISubjectScheduleService _subjectScheduleService;

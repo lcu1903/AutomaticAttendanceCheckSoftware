@@ -1,5 +1,7 @@
 
 using System.Services;
+using AACS.Repository.Implements;
+using AACS.Repository.Interface;
 using Core.Bus;
 using Core.Interfaces;
 using Core.Notifications;
@@ -65,6 +67,8 @@ public static class NativeInjector
         // services.AddTransient<IDatabaseInitializer, DatabaseInitializer>();
         // services.AddTransient<ApplicationDbInitializer>();
         // services.AddTransient<ApplicationDbSeeder>();
+        services.AddScoped<IUserEmbeddingRepo, UserEmbeddingRepo>();
+        services.AddScoped<HttpClient>();
         services.AddServices(typeof(IScopedService), ServiceLifetime.Scoped);
 
         // //Annoucement

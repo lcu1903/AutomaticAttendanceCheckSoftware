@@ -21,6 +21,7 @@ public partial class ApplicationDbContext
 
     public virtual DbSet<Teacher> Teachers { get; set; }
     public virtual DbSet<Class> Classes { get; set; }
+    public virtual DbSet<UserFaceEmbedding> UserFaceEmbeddings { get; set; }
 
     public static void AacsOnModelCreating(ModelBuilder modelBuilder)
     {
@@ -205,6 +206,14 @@ public partial class ApplicationDbContext
            entity.Property(e => e.UpdatedUserId).HasMaxLength(128);
            entity.Property(e => e.UserId).HasMaxLength(128);
        });
+        modelBuilder.Entity<UserFaceEmbedding>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("UserFaceEmbeddings_pkey");
+
+            entity.Property(e => e.Id).HasMaxLength(128);
+            entity.Property(e => e.UserId).HasMaxLength(128);
+            entity.Property(e => e.Embedding).IsRequired();
+        });
 
     }
 }

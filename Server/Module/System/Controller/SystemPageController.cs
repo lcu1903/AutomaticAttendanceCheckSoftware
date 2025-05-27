@@ -6,10 +6,13 @@ using Core.Controller;
 using Core.Notifications;
 using Infrastructure.Models;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace System.Controller;
+
 [Route("api/system-pages")]
+[Authorize]
 public class SystemPageController : ApiController
 {
     private readonly ISystemPageService _systemPageService;

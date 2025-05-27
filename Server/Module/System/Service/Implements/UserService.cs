@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace System.Services;
+
 public class UserService : DomainService, IUserService
 {
     private readonly UserManager<ApplicationUser> _userManager;
@@ -21,12 +22,14 @@ public class UserService : DomainService, IUserService
     private readonly IMediatorHandler _bus;
     private readonly IStudentRepo _studentRepo;
     private readonly ITeacherRepo _teacherRepo;
+    private readonly IUserEmbeddingRepo _userEmbeddingRepo;
     public UserService(UserManager<ApplicationUser> userManager,
     IUnitOfWork unitOfWork,
     IMediatorHandler bus,
     IMapper mapper,
     IStudentRepo studentRepo,
     ITeacherRepo teacherRepo,
+    IUserEmbeddingRepo userEmbeddingRepo,
     INotificationHandler<DomainNotification> notifications) : base(notifications, unitOfWork, bus)
     {
         _userManager = userManager;
@@ -34,6 +37,7 @@ public class UserService : DomainService, IUserService
         _bus = bus;
         _studentRepo = studentRepo;
         _teacherRepo = teacherRepo;
+        _userEmbeddingRepo = userEmbeddingRepo;
     }
     public async Task<IEnumerable<UserRes>> GetAllUsersAsync(string? textSearch, List<string>? departmentIds, List<string>? positionIds)
     {
@@ -64,6 +68,8 @@ public class UserService : DomainService, IUserService
         var result = await _userManager.CreateAsync(user, "123456");
         if (result.Succeeded)
         {
+
+            await SaveUserEmbeddingAsync(user.Id, req.ImageUrl!);
             Commit();
             return await _userManager.Users.Where(e => e.Id == user.Id).ProjectTo<UserRes>(_mapper.ConfigurationProvider).FirstAsync();
         }
@@ -86,7 +92,7 @@ public class UserService : DomainService, IUserService
         var result = await _userManager.DeleteAsync(user);
         if (result.Succeeded)
         {
-
+            await _userEmbeddingRepo.DeleteEmbeddingsByUserIdAsync(user.Id);
             Commit();
             return true;
         }
@@ -125,9 +131,12 @@ public class UserService : DomainService, IUserService
         user.PositionId = req.PositionId;
         user.BirthdayValue = req.Birthdate;
         user.ImageUrl = req.ImageUrl;
+
         var result = await _userManager.UpdateAsync(user);
         if (result.Succeeded)
         {
+            await _userEmbeddingRepo.DeleteEmbeddingsByUserIdAsync(user.Id);
+            await SaveUserEmbeddingAsync(user.Id, req.ImageUrl!);
             Commit();
             return await _userManager.Users.Where(e => e.Id == user.Id).ProjectTo<UserRes>(_mapper.ConfigurationProvider).FirstAsync();
         }
@@ -149,6 +158,7 @@ public class UserService : DomainService, IUserService
         foreach (var user in users)
         {
             await _userManager.DeleteAsync(user);
+            await _userEmbeddingRepo.DeleteEmbeddingsByUserIdAsync(user.Id);
         }
         var isSuccess = Commit();
         if (!isSuccess)
@@ -157,6 +167,27 @@ public class UserService : DomainService, IUserService
             return false;
         }
         return true;
+    }
+
+    // Ví dụ lưu embedding khi tạo user (gọi sau khi tạo user thành công)
+    public async Task SaveUserEmbeddingAsync(string userId, string imagePath)
+    {
+        var embedding = await _userEmbeddingRepo.GetFaceEmbeddingAsync(imagePath);
+        var embeddingJson = System.Text.Json.JsonSerializer.Serialize(embedding);
+        var emb = new UserFaceEmbedding
+        {
+            Id = Guid.NewGuid().ToString(),
+            UserId = userId,
+            Embedding = embeddingJson
+        };
+        await _userEmbeddingRepo.AddEmbeddingAsync(emb);
+    }
+
+    // Ví dụ lấy embedding của user
+    public async Task<List<double[]>> GetUserEmbeddingsAsync(string userId)
+    {
+        var list = await _userEmbeddingRepo.GetEmbeddingsByUserIdAsync(userId);
+        return list.Select(e => System.Text.Json.JsonSerializer.Deserialize<double[]>(e.Embedding)!).ToList();
     }
 
 }

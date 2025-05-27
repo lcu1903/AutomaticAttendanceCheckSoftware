@@ -6,11 +6,13 @@ using Core.Controller;
 using Core.Notifications;
 using Infrastructure.Models;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AACS.Controller;
 
 [Route("api/students")]
+[Authorize]
 public class StudentController : ApiController
 {
     private readonly IStudentService _studentService;
