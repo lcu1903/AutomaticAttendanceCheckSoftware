@@ -129,12 +129,28 @@ public class SubjectScheduleStudentService : DomainService, ISubjectScheduleStud
 
     public async Task<List<SubjectScheduleStudentRes>> GetByStudentIdAsync(string studentId)
     {
-        var subjectScheduleStudents = _subjectScheduleStudentRepo.GetAll().Where(e => e.StudentId == studentId);
+        var subjectScheduleStudents = _subjectScheduleStudentRepo.GetAll()
+        .Where(e => e.StudentId == studentId)
+        .Where(e => e.SubjectSchedule.SubjectScheduleDetails.Select(d => d.ScheduleDate).Any(sd => sd <= DateTime.UtcNow && DateTime.UtcNow <= sd.AddDays(1)))
+        .Select(e => new SubjectScheduleStudentRes
+        {
+            SubjectScheduleStudentId = e.SubjectScheduleStudentId,
+            SubjectScheduleId = e.SubjectScheduleId,
+            StudentId = e.StudentId,
+            SubjectScheduleCode = e.SubjectSchedule.SubjectScheduleCode,
+            SubjectCode = e.SubjectSchedule.Subject.SubjectCode,
+            SubjectName = e.SubjectSchedule.Subject.SubjectName,
+            ClassRoom = e.SubjectSchedule.RoomNumber,
+            TeacherName = e.SubjectSchedule.Teacher.User.FullName,
+            StartTime = e.SubjectSchedule.SubjectScheduleDetails.Where(sd => sd.ScheduleDate <= DateTime.UtcNow && DateTime.UtcNow <= sd.ScheduleDate.AddDays(1)).Select(sd => sd.StartTime).FirstOrDefault(),
+            EndTime = e.SubjectSchedule.SubjectScheduleDetails.Where(sd => sd.ScheduleDate <= DateTime.UtcNow && DateTime.UtcNow <= sd.ScheduleDate.AddDays(1)).Select(sd => sd.EndTime).FirstOrDefault(),
+        });
+
         if (subjectScheduleStudents is null)
         {
             await _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.subjectScheduleStudentNotFound"));
             return new List<SubjectScheduleStudentRes>();
         }
-        return await subjectScheduleStudents.ProjectTo<SubjectScheduleStudentRes>(_mapper.ConfigurationProvider).ToListAsync();
+        return await subjectScheduleStudents.ToListAsync();
     }
 }

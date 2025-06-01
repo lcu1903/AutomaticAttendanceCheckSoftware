@@ -22,6 +22,7 @@ public partial class ApplicationDbContext
     public virtual DbSet<Teacher> Teachers { get; set; }
     public virtual DbSet<Class> Classes { get; set; }
     public virtual DbSet<UserFaceEmbedding> UserFaceEmbeddings { get; set; }
+    public virtual DbSet<Attendance> Attendances { get; set; }
 
     public static void AacsOnModelCreating(ModelBuilder modelBuilder)
     {
@@ -213,6 +214,19 @@ public partial class ApplicationDbContext
             entity.Property(e => e.Id).HasMaxLength(128);
             entity.Property(e => e.UserId).HasMaxLength(128);
             entity.Property(e => e.Embedding).IsRequired();
+        });
+        modelBuilder.Entity<Attendance>(entity =>
+        {
+            entity.Property(e => e.AttendanceId).HasMaxLength(128);
+            entity.Property(e => e.CreateDate).HasPrecision(6);
+            entity.Property(e => e.CreatedUserId).HasMaxLength(128);
+            entity.Property(e => e.StatusId).HasMaxLength(128);
+            entity.Property(e => e.SubjectScheduleId).HasMaxLength(128);
+            entity.Property(e => e.UpdateDate).HasPrecision(6);
+            entity.Property(e => e.UpdatedUserId).HasMaxLength(128);
+            entity.Property(e => e.UserId).HasMaxLength(128);
+            entity.Property(e => e.Note).HasMaxLength(500);
+            entity.Property(e => e.AttendanceTime).HasPrecision(6);
         });
 
     }

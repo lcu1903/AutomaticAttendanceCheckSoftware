@@ -232,7 +232,8 @@ public class Startup
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Could not start DeepFace API server: {ex.Message}");
+
+            throw ex;
         }
     }
 

@@ -34,7 +34,6 @@ public class StorageService(
 
     public async Task<string> UploadObjectAsync(IFormFile file, CancellationToken cancellation)
     {
-        var a = await _minioClient.ListBucketsAsync(cancellation);
         var uuid = Guid.NewGuid().ToString();
         var beArgs = new BucketExistsArgs().WithBucket(bucketName);
         var found = await _minioClient.BucketExistsAsync(beArgs, cancellation);
@@ -48,10 +47,10 @@ public class StorageService(
         var filestream = new MemoryStream();
         await file.CopyToAsync(filestream, cancellation);
         filestream.Position = 0;
-        var result = await _minioClient.PutObjectAsync(new PutObjectArgs()
-            .WithBucket(bucketName).WithObject($"{uuid}")
-            .WithContentType(file.ContentType)
-            .WithStreamData(filestream).WithObjectSize(filestream.Length), cancellation);
+        await _minioClient.PutObjectAsync(new PutObjectArgs()
+           .WithBucket(bucketName).WithObject($"{uuid}")
+           .WithContentType(file.ContentType)
+           .WithStreamData(filestream).WithObjectSize(filestream.Length), cancellation);
         Commit();
         var urlDownload = $"/api/storage/{uuid}";
         return await Task.FromResult(urlDownload);
@@ -59,7 +58,7 @@ public class StorageService(
 
     public async Task<ObjectTypeMinio?> DownloadObjectAsync(string id, CancellationToken cancellation)
     {
-        
+
         var nameObject = $"{id}";
 
 
@@ -106,7 +105,7 @@ public class StorageService(
 
     public async Task RemoveObjectsAsync(string objectName, CancellationToken cancellation)
     {
-    
+
         var args = new RemoveObjectArgs()
             .WithBucket(bucketName)
             .WithObject(objectName);
@@ -115,7 +114,7 @@ public class StorageService(
     }
     public async Task<string> GetPresignedObjectAsync(string id, CancellationToken cancellation)
     {
-        
+
         var args = new PresignedGetObjectArgs()
             .WithBucket(bucketName)
             .WithObject(id).WithExpiry(60 * 60 * 24);
@@ -127,12 +126,20 @@ public class StorageService(
     {
         // Giả sử bạn có bảng chứa ImageUrl và cần lấy hết các image key từ ImageUrl,
         // ví dụ: "/api/storage/{fileKey}" -> lấy fileKey sau dấu '/'
+        var imageUrls = new List<string>
+        {
+
+        };
         var dbImageUrls = await context.Users   // thay YourTable thành bảng của bạn
             .Select(x => x.ImageUrl)
             .ToListAsync(cancellationToken);
-
+        var attendanceImageUrls = await context.Attendances
+            .Select(x => x.ImageUrl)
+            .ToListAsync(cancellationToken);
+        imageUrls.AddRange(dbImageUrls);
+        imageUrls.AddRange(attendanceImageUrls);
         // Trích xuất fileKey từ các URL, giả sử fileKey là phần sau dấu '/'
-        var dbFileKeys = dbImageUrls
+        var dbFileKeys = imageUrls
             .Where(url => !string.IsNullOrEmpty(url))
             .Select(url => url.Substring(url.LastIndexOf('/') + 1))
             .ToHashSet<string>();

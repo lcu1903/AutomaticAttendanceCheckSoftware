@@ -10,41 +10,38 @@ using Microsoft.AspNetCore.Identity;
 using System.Models;
 using AutoMapper.QueryableExtensions;
 using AutoMapper;
-using Minio;
 using AACS.Repository.Interface;
-using System.Linq;
 using System.Globalization;
+using System.Storage;
 
 namespace AACS.Service.Implements
 {
     public class FaceDetectionService : DomainService, IFaceDetectionService
     {
-        private readonly string _cascadePath;
-        private readonly string _webPath;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
         private readonly IUserEmbeddingRepo _userEmbeddingRepo;
+        private readonly IStorageService _storageService;
+        private readonly IAttendanceRepo _attendanceRepo;
+        private readonly IMediatorHandler _bus;
 
         public FaceDetectionService(
              UserManager<ApplicationUser> userManager,
+            IStorageService storageService,
             INotificationHandler<DomainNotification> notifications,
-            IConfiguration configuration,
-            HttpClient httpClient,
+            IAttendanceRepo attendanceRepo,
             IUserEmbeddingRepo userEmbeddingRepo,
             IMapper mapper,
             IUnitOfWork uow,
             IMediatorHandler bus
         ) : base(notifications, uow, bus)
         {
-            _cascadePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Cascades", "haarcascade_frontalface_default.xml");
-            _configuration = configuration;
             _userEmbeddingRepo = userEmbeddingRepo;
-            _httpClient = httpClient;
-            _webPath = configuration.GetValue<string>("JwtIssuerOptions:Issuer") ?? string.Empty;
             _userManager = userManager;
             _mapper = mapper;
+            _storageService = storageService;
+            _attendanceRepo = attendanceRepo;
+            _bus = bus;
         }
 
 
@@ -53,6 +50,26 @@ namespace AACS.Service.Implements
             var userId = RecognizeUser(imageData);
             if (string.IsNullOrEmpty(userId))
                 return null;
+            var imageFile = new FormFile(new MemoryStream(imageData), 0, imageData.Length, "file", "face.jpg")
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "image/jpeg"
+            };
+            var imageUrl = _storageService.UploadObjectAsync(imageFile, default).Result;
+            _attendanceRepo.AddAttendanceFromFaceRecognition(new Attendance
+            {
+                UserId = userId,
+                SubjectScheduleId = subjectScheduleId,
+                AttendanceId = Guid.NewGuid().ToString(),
+                AttendanceTime = DateTime.UtcNow,
+                ImageUrl = imageUrl
+            });
+            var isSuccess = Commit();
+            if (!isSuccess)
+            {
+                _bus.RaiseEvent(new DomainNotification("ERROR", "aacs.message.faceRecognitionFailed"));
+                return null;
+            }
             return _userManager.Users.Where(u => u.Id == userId).ProjectTo<UserRes>(_mapper.ConfigurationProvider)
                 .FirstOrDefault();
 
