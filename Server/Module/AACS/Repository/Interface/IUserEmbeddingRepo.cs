@@ -13,6 +13,6 @@ namespace AACS.Repository.Interface
         Task<List<UserFaceEmbedding>> GetAllEmbeddingsAsync();
         Task DeleteEmbeddingsByUserIdAsync(string userId);
         Task<double[]> GetFaceEmbeddingAsync(string imagePath);
-        Task<double[]> GetFaceEmbeddingByBase64Async(byte[] imageBytes);
+        Task<double[]> GetFaceEmbeddingByBase64Async(string base64Img);
     }
 }

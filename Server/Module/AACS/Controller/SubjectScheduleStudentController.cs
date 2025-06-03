@@ -26,9 +26,9 @@ public class SubjectScheduleStudentController : ApiController
 
     [HttpGet]
     [ProducesResponseType(typeof(ResponseModel<IEnumerable<SubjectScheduleStudentRes>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllAsync([FromQuery] string? textSearch)
+    public async Task<IActionResult> GetAllAsync([FromQuery] string? textSearch, [FromQuery] List<string>? studentIds)
     {
-        var res = await _subjectScheduleStudentService.GetAllAsync(textSearch);
+        var res = await _subjectScheduleStudentService.GetAllAsync(textSearch, studentIds);
         return Response(res);
     }
 

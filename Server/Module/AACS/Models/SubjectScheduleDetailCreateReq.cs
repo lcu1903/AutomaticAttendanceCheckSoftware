@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Infrastructure.Models;
-
+﻿
 namespace AACS.Models;
 
 public partial class SubjectScheduleDetailCreateReq

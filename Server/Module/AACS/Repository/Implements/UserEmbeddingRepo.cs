@@ -80,7 +80,7 @@ namespace AACS.Repository.Implements
             }
         }
 
-        public async Task<double[]> GetFaceEmbeddingByBase64Async(byte[] imageBytes)
+        public async Task<double[]> GetFaceEmbeddingByBase64Async(string base64Img)
         {
 
             try
@@ -88,7 +88,7 @@ namespace AACS.Repository.Implements
 
                 var payload = new
                 {
-                    img = "data:image/jpeg;base64," + Convert.ToBase64String(imageBytes),
+                    img = base64Img,
                     model = "ArcFace"
                 };
                 using var client = new HttpClient();

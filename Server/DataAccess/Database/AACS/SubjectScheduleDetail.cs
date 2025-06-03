@@ -18,5 +18,7 @@ public partial class SubjectScheduleDetail : EntityAudit
 
     public string? Note { get; set; }
     public virtual SubjectSchedule? SubjectSchedule { get; set; } = null!;
+    public virtual ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
+
 
 }

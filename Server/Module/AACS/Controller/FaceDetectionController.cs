@@ -32,13 +32,7 @@ namespace AACS.Controller
         {
             if (string.IsNullOrEmpty(request.ImageData))
                 return Response();
-
-            var base64Data = request.ImageData.Contains(",")
-                ? request.ImageData.Split(',')[1]
-                : request.ImageData;
-
-            byte[] imageBytes = Convert.FromBase64String(base64Data);
-            var res = _faceDetectionService.FaceRecognitionAsync(imageBytes, request.SubjectScheduleId);
+            var res = _faceDetectionService.FaceRecognitionAsync(request.ImageData, request.SubjectScheduleDetailId);
 
             return Response(res);
         }

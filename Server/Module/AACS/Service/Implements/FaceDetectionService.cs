@@ -1,5 +1,4 @@
 using AACS.Service.Interface;
-using OpenCvSharp;
 using DataAccess.Models;
 using Core.Interfaces;
 using Infrastructure.DomainService;
@@ -45,25 +44,34 @@ namespace AACS.Service.Implements
         }
 
 
-        public UserRes? FaceRecognitionAsync(byte[] imageData, string subjectScheduleId)
+        public UserRes? FaceRecognitionAsync(string base64Img, string subjectScheduleDetailId)
         {
-            var userId = RecognizeUser(imageData);
-            if (string.IsNullOrEmpty(userId))
-                return null;
-            var imageFile = new FormFile(new MemoryStream(imageData), 0, imageData.Length, "file", "face.jpg")
+            var imageBytes = Convert.FromBase64String(base64Img.Contains(",") ? base64Img.Split(',')[1] : base64Img);
+            var imageFile = new FormFile(new MemoryStream(imageBytes), 0, imageBytes.Length, "file", "face.jpg")
             {
                 Headers = new HeaderDictionary(),
                 ContentType = "image/jpeg"
             };
             var imageUrl = _storageService.UploadObjectAsync(imageFile, default).Result;
-            _attendanceRepo.AddAttendanceFromFaceRecognition(new Attendance
+
+            var userId = RecognizeUser(base64Img);
+            var attendance = new Attendance
             {
                 UserId = userId,
-                SubjectScheduleId = subjectScheduleId,
                 AttendanceId = Guid.NewGuid().ToString(),
                 AttendanceTime = DateTime.UtcNow,
-                ImageUrl = imageUrl
-            });
+                ImageUrl = imageUrl,
+                SubjectScheduleDetailId = subjectScheduleDetailId,
+            };
+            if (string.IsNullOrEmpty(userId))
+            {
+                attendance.StatusId = "ERROR";
+                attendance.Note = "Không nhận diện được người dùng";
+                _attendanceRepo.Add(attendance);
+                return null;
+            }
+
+            _attendanceRepo.AddAttendanceFromFaceRecognition(attendance, subjectScheduleDetailId);
             var isSuccess = Commit();
             if (!isSuccess)
             {
@@ -75,9 +83,9 @@ namespace AACS.Service.Implements
 
         }
 
-        public string? RecognizeUser(byte[] imageBytes)
+        private string? RecognizeUser(string base64Img)
         {
-            var embedding = _userEmbeddingRepo.GetFaceEmbeddingByBase64Async(imageBytes).Result;
+            var embedding = _userEmbeddingRepo.GetFaceEmbeddingByBase64Async(base64Img).Result;
             if (embedding == null || embedding.Length == 0)
                 return null;
             var userImageVectors = _userEmbeddingRepo.GetAllEmbeddingsAsync().Result;

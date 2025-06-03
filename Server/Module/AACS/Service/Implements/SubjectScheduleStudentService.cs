@@ -81,13 +81,17 @@ public class SubjectScheduleStudentService : DomainService, ISubjectScheduleStud
         }
     }
 
-    public async Task<List<SubjectScheduleStudentRes>> GetAllAsync(string? textSearch)
+    public async Task<List<SubjectScheduleStudentRes>> GetAllAsync(string? textSearch, List<string>? studentIds)
     {
         var subjectScheduleStudents = _subjectScheduleStudentRepo.GetAll();
         if (!string.IsNullOrEmpty(textSearch))
         {
             // subjectScheduleStudents = subjectScheduleStudents.Where(e => e.SubjectScheduleStudentName.ToLower().Contains(textSearch.ToLower()) ||
             //                                e.SubjectScheduleStudentCode.ToLower().Contains(textSearch.ToLower()));
+        }
+        if (studentIds != null && studentIds.Count > 0)
+        {
+            subjectScheduleStudents = subjectScheduleStudents.Where(e => studentIds.Contains(e.StudentId));
         }
         return await subjectScheduleStudents.ProjectTo<SubjectScheduleStudentRes>(_mapper.ConfigurationProvider).ToListAsync();
     }
@@ -136,8 +140,10 @@ public class SubjectScheduleStudentService : DomainService, ISubjectScheduleStud
         {
             SubjectScheduleStudentId = e.SubjectScheduleStudentId,
             SubjectScheduleId = e.SubjectScheduleId,
+            SubjectScheduleDetailId = e.SubjectSchedule.SubjectScheduleDetails.Where(sd => sd.ScheduleDate <= DateTime.UtcNow && DateTime.UtcNow <= sd.ScheduleDate.AddDays(1)).Select(sd => sd.SubjectScheduleDetailId).FirstOrDefault(),
             StudentId = e.StudentId,
             SubjectScheduleCode = e.SubjectSchedule.SubjectScheduleCode,
+            SubjectId = e.SubjectSchedule.Subject.SubjectId,
             SubjectCode = e.SubjectSchedule.Subject.SubjectCode,
             SubjectName = e.SubjectSchedule.Subject.SubjectName,
             ClassRoom = e.SubjectSchedule.RoomNumber,

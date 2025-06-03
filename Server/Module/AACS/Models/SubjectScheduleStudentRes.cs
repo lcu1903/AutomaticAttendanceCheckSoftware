@@ -9,13 +9,13 @@ public partial class SubjectScheduleStudentRes
     public string SubjectScheduleStudentId { get; set; } = null!;
 
     public string? SubjectScheduleId { get; set; }
+    public string? SubjectScheduleDetailId { get; set; }
 
     public string? StudentId { get; set; }
     public string? ClassRoom { get; set; }
     public string? TeacherName { get; set; }
-
-
     public string SubjectScheduleCode { get; set; } = null!;
+    public string SubjectId { get; set; } = null!;
     public string? SubjectCode { get; set; }
     public string? SubjectName { get; set; }
     public DateTime? StartTime { get; set; }

@@ -5,7 +5,6 @@ namespace AACS.Service.Interface
 {
     public interface IFaceDetectionService : IDomainService
     {
-        string? RecognizeUser(byte[] imageBytes);
-        UserRes? FaceRecognitionAsync(byte[] imageData, string subjectScheduleId);
+        UserRes? FaceRecognitionAsync(string base64Img, string subjectScheduleDetailId);
     }
 }

@@ -5,5 +5,5 @@ namespace AACS.Repository.Interface;
 
 public interface IAttendanceRepo : IRepository<Attendance>
 {
-    public bool AddAttendanceFromFaceRecognition(Attendance attendance);
+    public bool AddAttendanceFromFaceRecognition(Attendance attendance, string? subjectScheduleDetailId);
 }

@@ -56,6 +56,9 @@ public class DomainToViewMappingProfile : Profile
             ;
         CreateMap<SubjectScheduleDetail, SubjectScheduleDetailRes>();
         CreateMap<SubjectScheduleStudent, SubjectScheduleStudentRes>()
+            .ForMember(dest => dest.SubjectId, opt => opt.MapFrom(src => src.SubjectSchedule.SubjectId))
+            .ForMember(dest => dest.SubjectName, opt => opt.MapFrom(src => src.SubjectSchedule.Subject.SubjectName))
+
             ;
 
     }

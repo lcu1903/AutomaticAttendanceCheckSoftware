@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Infrastructure.Models;
 
-namespace DataAccess.Models;
+namespace AACS.Models;
 
-public partial class Attendance : EntityAudit
+public partial class AttendanceUpdateReq
 {
     public string AttendanceId { get; set; } = null!;
-
     public DateTime AttendanceTime { get; set; }
 
     public string? UserId { get; set; }
@@ -18,6 +14,4 @@ public partial class Attendance : EntityAudit
 
     public string? Note { get; set; }
     public string? ImageUrl { get; set; }
-
-    public virtual SubjectScheduleDetail? SubjectScheduleDetail { get; set; }
 }

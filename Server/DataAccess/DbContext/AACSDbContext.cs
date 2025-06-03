@@ -34,14 +34,10 @@ public partial class ApplicationDbContext
            entity.Property(e => e.CreateDate).HasPrecision(6);
            entity.Property(e => e.CreatedUserId).HasMaxLength(128);
            entity.Property(e => e.StatusId).HasMaxLength(128);
-           entity.Property(e => e.SubjectScheduleId).HasMaxLength(128);
            entity.Property(e => e.UpdateDate).HasPrecision(6);
            entity.Property(e => e.UpdatedUserId).HasMaxLength(128);
+           entity.Property(e => e.SubjectScheduleDetailId).HasMaxLength(128);
            entity.Property(e => e.UserId).HasMaxLength(128);
-
-           entity.HasOne(d => d.SubjectSchedule).WithMany(p => p.Attendances)
-               .HasForeignKey(d => d.SubjectScheduleId)
-               .HasConstraintName("Attendances_SubjectScheduleId_fkey");
        });
 
         modelBuilder.Entity<Class>(entity =>
@@ -214,19 +210,6 @@ public partial class ApplicationDbContext
             entity.Property(e => e.Id).HasMaxLength(128);
             entity.Property(e => e.UserId).HasMaxLength(128);
             entity.Property(e => e.Embedding).IsRequired();
-        });
-        modelBuilder.Entity<Attendance>(entity =>
-        {
-            entity.Property(e => e.AttendanceId).HasMaxLength(128);
-            entity.Property(e => e.CreateDate).HasPrecision(6);
-            entity.Property(e => e.CreatedUserId).HasMaxLength(128);
-            entity.Property(e => e.StatusId).HasMaxLength(128);
-            entity.Property(e => e.SubjectScheduleId).HasMaxLength(128);
-            entity.Property(e => e.UpdateDate).HasPrecision(6);
-            entity.Property(e => e.UpdatedUserId).HasMaxLength(128);
-            entity.Property(e => e.UserId).HasMaxLength(128);
-            entity.Property(e => e.Note).HasMaxLength(500);
-            entity.Property(e => e.AttendanceTime).HasPrecision(6);
         });
 
     }
