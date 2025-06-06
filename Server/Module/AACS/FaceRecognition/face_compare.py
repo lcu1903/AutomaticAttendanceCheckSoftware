@@ -11,18 +11,14 @@ def health():
 def embedding():
     try:
         data = request.json
-        print("Received data:", data)  # Log dữ liệu nhận được
 
         img = data['img']
         model_name = data.get('model', 'ArcFace')
-        print("Model:", model_name)
 
         embedding = DeepFace.represent(img, model_name=model_name)[0]['embedding']
-        print("Embedding calculated successfully")
         return jsonify({"embedding": embedding})
     except Exception as e:
         error_msg = f"Error in /embedding: {str(e)}\n"
-        print(error_msg)
         # Ghi log lỗi ra file error_log.txt cùng thư mục
         with open("error_log.txt", "a", encoding="utf-8") as f:
             f.write(error_msg)

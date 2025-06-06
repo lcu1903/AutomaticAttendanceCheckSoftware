@@ -8,7 +8,8 @@ namespace StartupExtensions
         private static ConnectionMultiplexer redis;
         public static IServiceCollection AddRedisCache(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost:6379"));
+            string redisConnection = configuration.GetValue<string>("RedisSettings:RedisCacheUrl");
+            services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnection));
             var isUseDistributedCache = configuration.GetValue<bool>("RedisSettings:IsUseDistributedCache");
             if (isUseDistributedCache)
             {
@@ -18,15 +19,16 @@ namespace StartupExtensions
                     options.InstanceName = configuration.GetValue<string>("RedisSettings:RedisKeyPrefix") + ":";
                 });
             }
-            services.AddSession(options => 
+            services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromMinutes(10);
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
-            
-            try{
-                redis = ConnectionMultiplexer.Connect("localhost:6379");
+
+            try
+            {
+                redis = ConnectionMultiplexer.Connect(redisConnection);
                 IDatabase db = redis.GetDatabase();
                 // Thử lệnh PING
                 string result = db.Execute("PING").ToString();
@@ -36,7 +38,7 @@ namespace StartupExtensions
             {
                 Console.WriteLine("Error: " + ex.Message);
             }
-          
+
 
             return services;
         }

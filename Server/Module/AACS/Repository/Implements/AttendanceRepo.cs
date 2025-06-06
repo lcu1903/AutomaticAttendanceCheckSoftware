@@ -25,8 +25,10 @@ public class AttendanceRepo : Repository<Attendance>, IAttendanceRepo
     public bool AddAttendanceFromFaceRecognition(Attendance attendance, string? subjectScheduleDetailId)
     {
         var scheduleDetails = _context.SubjectScheduleDetails.First(e => e.SubjectScheduleDetailId == subjectScheduleDetailId);
-        var timeSpan = new TimeSpan(scheduleDetails.StartTime.Hour, scheduleDetails.StartTime.Minute, scheduleDetails.StartTime.Second);
-        var attendanceTime = attendance.AttendanceTime.TimeOfDay;
+        var localStartTime = scheduleDetails.StartTime.ToLocalTime();
+        var localAttendanceTime = attendance.AttendanceTime.ToLocalTime();
+        var timeSpan = new TimeSpan(localStartTime.Hour, localStartTime.Minute, localStartTime.Second);
+        var attendanceTime = localAttendanceTime.TimeOfDay;
         if (attendanceTime > timeSpan && attendanceTime < timeSpan.Add(new TimeSpan(0, 15, 0)))
         {
             attendance.StatusId = "ON_TIME";
@@ -34,7 +36,7 @@ public class AttendanceRepo : Repository<Attendance>, IAttendanceRepo
         else
         {
             attendance.StatusId = "LATE";
-            attendance.Note = $"Đi muộn {(attendanceTime - timeSpan).TotalMinutes.ToString("F2")} phút";
+            attendance.Note = $"Đi muộn {Math.Abs((attendanceTime - timeSpan).TotalMinutes).ToString("F2")} phút";
         }
         _context.Attendances.Add(attendance);
         return true;

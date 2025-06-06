@@ -1,0 +1,47 @@
+
+services:
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  postgres:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: anhdasai123
+      POSTGRES_DB: aacs_v1
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  myapp:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - redis
+      - postgres
+    environment:
+      # Chuỗi kết nối Redis, thay 'redis' là tên service Redis trong network docker-compose
+      - RedisSettings__RedisCacheUrl=redis:6379,abortConnect=false
+      
+      # Chuỗi kết nối PostgreSQL
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=aacs_v1;Username=postgres;Password=anhdasai123
+      
+      # Các biến môi trường khác nếu có
+    networks:
+      - backend
+
+volumes:
+  redis_data:
+  pgdata:
+
+networks:
+  backend:

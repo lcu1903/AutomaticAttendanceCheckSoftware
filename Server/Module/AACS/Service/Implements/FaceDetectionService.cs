@@ -12,6 +12,7 @@ using AutoMapper;
 using AACS.Repository.Interface;
 using System.Globalization;
 using System.Storage;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace AACS.Service.Implements
 {
@@ -23,7 +24,8 @@ namespace AACS.Service.Implements
         private readonly IStorageService _storageService;
         private readonly IAttendanceRepo _attendanceRepo;
         private readonly IMediatorHandler _bus;
-
+        private readonly IDistributedCache _cache;
+        private const string EmbeddingCacheKey = "UserEmbeddings";
         public FaceDetectionService(
              UserManager<ApplicationUser> userManager,
             IStorageService storageService,
@@ -32,6 +34,7 @@ namespace AACS.Service.Implements
             IUserEmbeddingRepo userEmbeddingRepo,
             IMapper mapper,
             IUnitOfWork uow,
+            IDistributedCache cache,
             IMediatorHandler bus
         ) : base(notifications, uow, bus)
         {
@@ -41,6 +44,7 @@ namespace AACS.Service.Implements
             _storageService = storageService;
             _attendanceRepo = attendanceRepo;
             _bus = bus;
+            _cache = cache;
         }
 
 
@@ -85,9 +89,17 @@ namespace AACS.Service.Implements
 
         private string? RecognizeUser(string base64Img)
         {
+            // // Try to get data from cache
+            // var cachedData = _cache.GetString(EmbeddingCacheKey);
+            // var cachedEmbedding = new List<UserFaceEmbedding>();
+            // if (!string.IsNullOrEmpty(cachedData))
+            // {
+            //     cachedEmbedding.AddRange(JsonSerializer.Deserialize<List<UserFaceEmbedding>>(cachedData));
+            // }
             var embedding = _userEmbeddingRepo.GetFaceEmbeddingByBase64Async(base64Img).Result;
             if (embedding == null || embedding.Length == 0)
                 return null;
+            // var userImageVectors = cachedEmbedding.Count > 0 ? cachedEmbedding : _userEmbeddingRepo.GetAllEmbeddingsAsync().Result;
             var userImageVectors = _userEmbeddingRepo.GetAllEmbeddingsAsync().Result;
             string? matchedUserId = null;
             double minDistance = double.MaxValue;
@@ -115,7 +127,8 @@ namespace AACS.Service.Implements
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error processing user {user.UserId}: {ex.Message}");
+                    _bus.RaiseEvent(new DomainNotification("ERROR", $"{user.UserId}: {ex.Message}"));
+                    throw ex;
                 }
             });
             return matchedUserId;

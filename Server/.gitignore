@@ -8,3 +8,4 @@ appsettings.json
 appsettings.Development.json
 Properties
 Migrations
+wwwroot
