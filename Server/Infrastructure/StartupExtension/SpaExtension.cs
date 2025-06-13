@@ -8,7 +8,7 @@ public static class SpaExtension
     {
         services.AddSpaStaticFiles((options) =>
         {
-            options.RootPath = "ClientApp/dist";
+            options.RootPath = "wwwroot";
         });
     }
 }

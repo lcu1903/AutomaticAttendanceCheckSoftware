@@ -6,6 +6,7 @@ using AACS.Repository.Interface;
 using DataAccess.Contexts;
 using Core.Repository;
 using Core.Bus;
+using Core.Notifications;
 
 namespace AACS.Repository.Implements
 {
@@ -54,14 +55,9 @@ namespace AACS.Repository.Implements
 
             try
             {
-                if (!Uri.IsWellFormedUriString(imagePath, UriKind.Absolute))
-                {
-                    string baseUrl = _webPath.TrimEnd('/');
-                    if (!imagePath.StartsWith("/")) imagePath = "/" + imagePath;
-                    imagePath = baseUrl + imagePath;
-                }
-                // Tải ảnh mẫu về file tạm
-                var imageBytesUser = _httpClient.GetByteArrayAsync(imagePath).Result;
+                string baseUrl = _webPath.TrimEnd('/');
+                imagePath = baseUrl + imagePath;
+                var imageBytesUser = await _httpClient.GetByteArrayAsync(imagePath);
                 var payload = new
                 {
                     img = "data:image/jpeg;base64," + Convert.ToBase64String(imageBytesUser),
@@ -69,13 +65,19 @@ namespace AACS.Repository.Implements
                 };
                 var deepFaceApiUrl = _configuration.GetValue<string>("DeepFaceApi:BaseUrl") ?? "http://localhost:5001";
                 var response = await _httpClient.PostAsJsonAsync($"{deepFaceApiUrl}/embedding", payload);
-                response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    await _bus.RaiseEvent(new DomainNotification("ERROR", $"HTTP Error: {response.StatusCode}. Content: {errorContent}"));
+                    return Array.Empty<double>();
+                }
+
                 var result = await response.Content.ReadFromJsonAsync<EmbeddingResult>();
                 return result?.embedding ?? Array.Empty<double>();
             }
             catch (Exception e)
             {
-
                 return Array.Empty<double>();
             }
         }
@@ -85,7 +87,6 @@ namespace AACS.Repository.Implements
 
             try
             {
-
                 var payload = new
                 {
                     img = base64Img,
@@ -100,7 +101,6 @@ namespace AACS.Repository.Implements
             }
             catch (Exception e)
             {
-
                 return Array.Empty<double>();
             }
         }

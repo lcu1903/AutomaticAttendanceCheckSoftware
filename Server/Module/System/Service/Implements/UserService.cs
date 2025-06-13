@@ -75,7 +75,7 @@ public class UserService : DomainService, IUserService
         }
         else
         {
-            await _bus.RaiseEvent(new DomainNotification("error", "system.message.userCreateFailed"));
+            await _bus.RaiseEvent(new DomainNotification("ERROR", "system.message.userCreateFailed"));
             return null;
         }
 

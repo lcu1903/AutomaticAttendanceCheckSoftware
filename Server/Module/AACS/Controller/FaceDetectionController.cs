@@ -12,7 +12,7 @@ using System.Models;
 
 namespace AACS.Controller
 {
-    [Route("api/face-detection")]
+    [Route("api/face-detections")]
     [Authorize]
     public class FaceDetectionController : ApiController
     {

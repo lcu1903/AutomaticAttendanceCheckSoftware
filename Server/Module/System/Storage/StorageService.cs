@@ -34,47 +34,40 @@ public class StorageService(
 
     public async Task<string> UploadObjectAsync(IFormFile file, CancellationToken cancellation)
     {
-        var uuid = Guid.NewGuid().ToString();
-        var beArgs = new BucketExistsArgs().WithBucket(bucketName);
-        var found = await _minioClient.BucketExistsAsync(beArgs, cancellation);
-        if (!found)
+        try
         {
-            var mbArgs = new MakeBucketArgs().WithBucket(bucketName);
-            await _minioClient.MakeBucketAsync(mbArgs, cancellation).ConfigureAwait(false);
+            var uuid = Guid.NewGuid().ToString();
+            var beArgs = new BucketExistsArgs().WithBucket(bucketName);
+            var found = await _minioClient.BucketExistsAsync(beArgs, cancellation);
+            if (!found)
+            {
+                var mbArgs = new MakeBucketArgs().WithBucket(bucketName);
+                await _minioClient.MakeBucketAsync(mbArgs, cancellation).ConfigureAwait(false);
+            }
+
+
+            var filestream = new MemoryStream();
+            await file.CopyToAsync(filestream, cancellation);
+            filestream.Position = 0;
+            await _minioClient.PutObjectAsync(new PutObjectArgs()
+               .WithBucket(bucketName).WithObject($"{uuid}")
+               .WithContentType(file.ContentType)
+               .WithStreamData(filestream).WithObjectSize(filestream.Length), cancellation);
+            var urlDownload = $"/api/storage/{uuid}";
+            return await Task.FromResult(urlDownload);
+        }
+        catch (Exception ex)
+        {
+            await _bus.RaiseEvent(new DomainNotification("ERROR", ex.Message));
+            throw;
         }
 
-
-        var filestream = new MemoryStream();
-        await file.CopyToAsync(filestream, cancellation);
-        filestream.Position = 0;
-        await _minioClient.PutObjectAsync(new PutObjectArgs()
-           .WithBucket(bucketName).WithObject($"{uuid}")
-           .WithContentType(file.ContentType)
-           .WithStreamData(filestream).WithObjectSize(filestream.Length), cancellation);
-        Commit();
-        var urlDownload = $"/api/storage/{uuid}";
-        return await Task.FromResult(urlDownload);
     }
 
     public async Task<ObjectTypeMinio?> DownloadObjectAsync(string id, CancellationToken cancellation)
     {
 
         var nameObject = $"{id}";
-
-
-        // // var stat = await minioClient.StatObjectAsync(args, cancellation);
-        // var stats = await _minioApi.GetObjectstat(bucketName, nameObject);
-        // var download = await _minioApi.DownloadObjectAsync(bucketName, nameObject);
-        // var destination = new MemoryStream();
-        // using (var stream = await download.ReadAsStreamAsync())
-        // {
-        //     await stream.CopyToAsync(destination);
-        // }
-        // return await Task.FromResult(new MinioObject
-        // {
-        //     Data = destination.ToArray(),
-        //     ContentType = stats.Headers.ContentType,
-        // });
         var args = new StatObjectArgs()
            .WithBucket(bucketName)
            .WithObject(nameObject);

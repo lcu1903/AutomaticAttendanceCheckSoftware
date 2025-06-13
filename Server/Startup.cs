@@ -7,6 +7,7 @@ using CrosCuttingIoC;
 using Hangfire;
 using System.Storage;
 using System.Diagnostics;
+using Microsoft.Extensions.FileProviders;
 
 
 namespace Controllers;
@@ -193,48 +194,60 @@ public class Startup
         {
             admin.UseSpa(spa =>
             {
-                spa.Options.SourcePath = "Client";
+                spa.Options.SourcePath = "wwwroot";
                 if (_env.IsDevelopment())
                 {
                     spa.UseProxyToSpaDevelopmentServer("http://localhost:4200");
+                }
+                if (env.IsProduction())
+                {
+                    spa.Options.DefaultPageStaticFileOptions = new StaticFileOptions
+                    {
+                        FileProvider = new PhysicalFileProvider(
+                            Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"))
+                    };
                 }
             });
         });
         // ApplicationDataInitializer.Initialize(app.ApplicationServices);
 
         // Khởi động DeepFace API server nếu chưa chạy
-        try
-        {
-            _pythonProcess = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "python",
-                    Arguments = "Module/AACS/FaceRecognition/face_compare.py",
-                    WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }
-            };
-            _pythonProcess.Start();
-            lifetime.ApplicationStopping.Register(() =>
-            {
-                try
-                {
-                    if (_pythonProcess != null && !_pythonProcess.HasExited)
-                    {
-                        _pythonProcess.Kill(true);
-                        _pythonProcess.Dispose();
-                    }
-                }
-                catch { /* log nếu cần */ }
-            });
-        }
-        catch (Exception ex)
-        {
-
-            throw ex;
-        }
+        // try
+        // {
+        //     var scriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Module/AACS/FaceRecognition/face_compare.py");
+        //     Console.WriteLine($"Script exists: {File.Exists(scriptPath)} - Path: {scriptPath}");
+        //     _pythonProcess = new Process
+        //     {
+        //         StartInfo = new ProcessStartInfo
+        //         {
+        //             FileName = "python",
+        //             Arguments = "Module/AACS/FaceRecognition/face_compare.py",
+        //             WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory,
+        //             UseShellExecute = false,
+        //             CreateNoWindow = true
+        //         }
+        //     };
+        //     _pythonProcess.Start();
+        //     lifetime.ApplicationStopping.Register(() =>
+        //     {
+        //         try
+        //         {
+        //             if (_pythonProcess != null && !_pythonProcess.HasExited)
+        //             {
+        //                 _pythonProcess.Kill(true);
+        //                 _pythonProcess.Dispose();
+        //             }
+        //         }
+        //         catch { /* log nếu cần */ }
+        //     });
+        // }
+        // catch (Exception ex)
+        // {
+        //     Console.WriteLine("BaseDirectory: " + AppDomain.CurrentDomain.BaseDirectory);
+        //     Console.WriteLine("Python script full path: " + Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Module/AACS/FaceRecognition/face_compare.py"));
+        //     Console.WriteLine("Error starting Python process: " + ex.Message);
+        //     throw;
+        // }
     }
 
     private static void RegisterServices(IServiceCollection services)
