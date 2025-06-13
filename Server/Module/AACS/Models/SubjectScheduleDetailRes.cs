@@ -17,5 +17,7 @@ public partial class SubjectScheduleDetailRes
     public DateTime EndTime { get; set; }
 
     public string? Note { get; set; }
+    public int TotalStudentsPresent { get; set; }
+    public int TotalStudents { get; set; }
 
 }

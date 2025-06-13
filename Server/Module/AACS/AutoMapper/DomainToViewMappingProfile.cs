@@ -54,7 +54,10 @@ public class DomainToViewMappingProfile : Profile
 
             .ForMember(dest => dest.SubjectScheduleDetails, opt => opt.MapFrom(src => src.SubjectScheduleDetails.OrderBy(x => x.ScheduleDate)))
             ;
-        CreateMap<SubjectScheduleDetail, SubjectScheduleDetailRes>();
+        CreateMap<SubjectScheduleDetail, SubjectScheduleDetailRes>()
+            .ForMember(dest => dest.TotalStudentsPresent, opt => opt.MapFrom(src => src.Attendances.GroupBy(e => e.UserId).Count(g => g.Any(a => a.AttendanceTime != null))))
+            .ForMember(dest => dest.TotalStudents, opt => opt.MapFrom(src => src.SubjectSchedule.SubjectScheduleStudents.Count))
+        ;
         CreateMap<SubjectScheduleStudent, SubjectScheduleStudentRes>()
             .ForMember(dest => dest.SubjectId, opt => opt.MapFrom(src => src.SubjectSchedule.SubjectId))
             .ForMember(dest => dest.SubjectName, opt => opt.MapFrom(src => src.SubjectSchedule.Subject.SubjectName))

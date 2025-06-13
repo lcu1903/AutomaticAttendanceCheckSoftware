@@ -24,6 +24,7 @@ namespace AACS.Service.Implements
         private readonly IStorageService _storageService;
         private readonly IAttendanceRepo _attendanceRepo;
         private readonly IMediatorHandler _bus;
+        private readonly ISubjectScheduleStudentRepo _subjectScheduleStudentRepo;
         private readonly IDistributedCache _cache;
         private const string EmbeddingCacheKey = "UserEmbeddings";
         public FaceDetectionService(
@@ -32,6 +33,7 @@ namespace AACS.Service.Implements
             INotificationHandler<DomainNotification> notifications,
             IAttendanceRepo attendanceRepo,
             IUserEmbeddingRepo userEmbeddingRepo,
+            ISubjectScheduleStudentRepo subjectScheduleStudentRepo,
             IMapper mapper,
             IUnitOfWork uow,
             IDistributedCache cache,
@@ -43,6 +45,7 @@ namespace AACS.Service.Implements
             _mapper = mapper;
             _storageService = storageService;
             _attendanceRepo = attendanceRepo;
+            _subjectScheduleStudentRepo = subjectScheduleStudentRepo;
             _bus = bus;
             _cache = cache;
         }
@@ -50,14 +53,11 @@ namespace AACS.Service.Implements
 
         public UserRes? FaceRecognitionAsync(string base64Img, string subjectScheduleDetailId)
         {
-            var imageBytes = Convert.FromBase64String(base64Img.Contains(",") ? base64Img.Split(',')[1] : base64Img);
-            var imageFile = new FormFile(new MemoryStream(imageBytes), 0, imageBytes.Length, "file", "face.jpg")
-            {
-                Headers = new HeaderDictionary(),
-                ContentType = "image/jpeg"
-            };
+            // Turn base64 image to a file and upload to storage
+            var imageFile = ConvertBase64ToFormFile(base64Img);
             var imageUrl = _storageService.UploadObjectAsync(imageFile, default).Result;
 
+            // Recognize user from the image
             var userId = RecognizeUser(base64Img);
             var attendance = new Attendance
             {
@@ -67,6 +67,7 @@ namespace AACS.Service.Implements
                 ImageUrl = imageUrl,
                 SubjectScheduleDetailId = subjectScheduleDetailId,
             };
+            // Check if userId is null or empty
             if (string.IsNullOrEmpty(userId))
             {
                 attendance.StatusId = "ERROR";
@@ -74,7 +75,14 @@ namespace AACS.Service.Implements
                 _attendanceRepo.Add(attendance);
                 return null;
             }
-
+            // Check if user is valid for the schedule
+            var isUserValidForSchedule = IsUserValidForSchedule(userId, subjectScheduleDetailId);
+            if (!isUserValidForSchedule)
+            {
+                return null;
+            }
+            // If user is valid, add attendance
+            attendance.StatusId = "PRESENT";
             _attendanceRepo.AddAttendanceFromFaceRecognition(attendance, subjectScheduleDetailId);
             var isSuccess = Commit();
             if (!isSuccess)
@@ -166,6 +174,22 @@ namespace AACS.Service.Implements
             public bool verified { get; set; }
             public double distance { get; set; }
         }
-        public double distance { get; set; }
+        private bool IsUserValidForSchedule(string userId, string subjectScheduleDetailId)
+        {
+            var isStudentInSchedule = _subjectScheduleStudentRepo.GetAll()
+            .Where(s => s.Student.UserId == userId)
+            .Where(s => s.SubjectSchedule.SubjectScheduleDetails.Any(d => d.SubjectScheduleDetailId == subjectScheduleDetailId)).Any();
+
+            return isStudentInSchedule;
+        }
+        private FormFile ConvertBase64ToFormFile(string base64Img)
+        {
+            var imageBytes = Convert.FromBase64String(base64Img.Contains(",") ? base64Img.Split(',')[1] : base64Img);
+            return new FormFile(new MemoryStream(imageBytes), 0, imageBytes.Length, "file", "face.jpg")
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "image/jpeg"
+            };
+        }
     }
 }
