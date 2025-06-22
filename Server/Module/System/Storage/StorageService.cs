@@ -36,7 +36,9 @@ public class StorageService(
     {
         try
         {
+            // Tạo id cho ảnh
             var uuid = Guid.NewGuid().ToString();
+            // Tạo bucket nếu chưa tồn tại
             var beArgs = new BucketExistsArgs().WithBucket(bucketName);
             var found = await _minioClient.BucketExistsAsync(beArgs, cancellation);
             if (!found)
@@ -45,7 +47,7 @@ public class StorageService(
                 await _minioClient.MakeBucketAsync(mbArgs, cancellation).ConfigureAwait(false);
             }
 
-
+            // Tạo stream từ file và upload lên Minio
             var filestream = new MemoryStream();
             await file.CopyToAsync(filestream, cancellation);
             filestream.Position = 0;
@@ -54,6 +56,7 @@ public class StorageService(
                .WithContentType(file.ContentType)
                .WithStreamData(filestream).WithObjectSize(filestream.Length), cancellation);
             var urlDownload = $"/api/storage/{uuid}";
+            // Trả về URL tải xuống
             return await Task.FromResult(urlDownload);
         }
         catch (Exception ex)

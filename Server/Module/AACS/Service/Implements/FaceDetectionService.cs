@@ -13,6 +13,7 @@ using AACS.Repository.Interface;
 using System.Globalization;
 using System.Storage;
 using Microsoft.Extensions.Caching.Distributed;
+using System.Collections.Concurrent;
 
 namespace AACS.Service.Implements
 {
@@ -97,49 +98,56 @@ namespace AACS.Service.Implements
 
         private string? RecognizeUser(string base64Img)
         {
-            // // Try to get data from cache
-            // var cachedData = _cache.GetString(EmbeddingCacheKey);
-            // var cachedEmbedding = new List<UserFaceEmbedding>();
-            // if (!string.IsNullOrEmpty(cachedData))
-            // {
-            //     cachedEmbedding.AddRange(JsonSerializer.Deserialize<List<UserFaceEmbedding>>(cachedData));
-            // }
-            var embedding = _userEmbeddingRepo.GetFaceEmbeddingByBase64Async(base64Img).Result;
-            if (embedding == null || embedding.Length == 0)
-                return null;
-            // var userImageVectors = cachedEmbedding.Count > 0 ? cachedEmbedding : _userEmbeddingRepo.GetAllEmbeddingsAsync().Result;
-            var userImageVectors = _userEmbeddingRepo.GetAllEmbeddingsAsync().Result;
-            string? matchedUserId = null;
-            double minDistance = double.MaxValue;
-            const double threshold = 0.68;
-            var users = _userEmbeddingRepo.GetAllEmbeddingsAsync().Result;
-            Parallel.ForEach(users, (user, state) =>
+            try
             {
-                try
+                // Get the embedding for the input image
+                var embedding = _userEmbeddingRepo.GetFaceEmbeddingByBase64Async(base64Img).Result;
+                if (embedding == null || embedding.Length == 0)
+                    return null;
+
+                // Normalize the input embedding once
+                embedding = Normalize(embedding);
+
+                // Retrieve all stored user embeddings
+                var users = _userEmbeddingRepo.GetAllEmbeddingsAsync().Result;
+
+                // Initialize variables
+                var matchedUserIds = new ConcurrentDictionary<string, double>();
+                const double threshold = 0.68;
+
+                // Parallel comparison
+                Parallel.ForEach(users, user =>
                 {
-                    var userEmbedding = ParseEmbedding(user.Embedding);
-                    if (userEmbedding.Length == 0) return;
-                    userEmbedding = Normalize(userEmbedding);
-                    embedding = Normalize(embedding);
-
-                    // Tính khoảng cách cosine
-                    double distance = CosineDistance(embedding, userEmbedding);
-
-                    // So sánh với ngưỡng
-                    if (distance < threshold && distance < minDistance)
+                    try
                     {
-                        minDistance = distance;
-                        matchedUserId = user.UserId;
-                        state.Break();
+                        var userEmbedding = ParseEmbedding(user.Embedding);
+                        if (userEmbedding.Length == 0) return;
+
+                        userEmbedding = Normalize(userEmbedding);
+
+                        // Calculate cosine distance
+                        double distance = CosineDistance(embedding, userEmbedding);
+
+                        // Check if the distance is below the threshold
+                        if (distance < threshold)
+                        {
+                            matchedUserIds.TryAdd(user.UserId, distance);
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    _bus.RaiseEvent(new DomainNotification("ERROR", $"{user.UserId}: {ex.Message}"));
-                    throw ex;
-                }
-            });
-            return matchedUserId;
+                    catch (Exception ex)
+                    {
+                        _bus.RaiseEvent(new DomainNotification("ERROR", $"{user.UserId}: {ex.Message}"));
+                    }
+                });
+
+                // Return the best match
+                return matchedUserIds.OrderBy(x => x.Value).FirstOrDefault().Key;
+            }
+            catch (Exception ex)
+            {
+                _bus.RaiseEvent(new DomainNotification("ERROR", ex.Message));
+                return null;
+            }
         }
         private double CosineDistance(double[] v1, double[] v2)
         {
